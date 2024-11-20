@@ -1,0 +1,2 @@
+`define BIU_REQQ_SIZE 8
+`define BIU_RESPQ_SIZE 8
