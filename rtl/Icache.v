@@ -1,17 +1,22 @@
 module icache(
     input             clk,
     input             rst_n,
+    // from Fetch0
     input   [0:0]     f0_valid_i,
     input   [63:0]    f0_pc_i,
-    output  [0:0]     icache_miss_o,
+    // inst to instQueue
     output  [0:0]     icache_valid_o, 
     output  [63:0]    icache_pc_o,
     output  [511:0]   icache_data_o,
-    input   [0:0]     inst_queue_full_i,
+    // icache miss to mem subsystem
     output  [0:0]     icache_miss_valid_o,
     output  [63:0]    icache_miss_addr_o,
+    // refill from mem subsystem
     input   [0:0]     refill_icache_valid_i,
     input   [511:0]   refill_icache_data_i,
+    // stall from instQueue
+    input   [0:0]     stall_icache_i,
+    // squash from backend
     input   [0:0]     squash_pipe_i
 );
 
@@ -56,7 +61,7 @@ reg [511:0] refill_icache_data_r;
 wire refill_vld;
 wire hit_refill;
 
-assign f0_hsk = f0_valid_i & !inst_queue_full_i && state!=MISS && !squash_pipe_i;
+assign f0_hsk = f0_valid_i & !stall_icache_i && state!=MISS && !squash_pipe_i;
 
 assign f0_tag    = f0_pc_i[OFFSET_WIDTH+IDX_WIDTH +: TAG_WIDTH];
 assign f0_idx    = f0_pc_i[OFFSET_WIDTH +: IDX_WIDTH];
@@ -69,7 +74,7 @@ always @(posedge clk or negedge rst_n) begin
     else if(squash_pipe_i) begin
         fetch_vld_r <= 1'b0;
     end
-    else if(!inst_queue_full_i && state!=MISS) begin
+    else if(!stall_icache_i && state!=MISS) begin
         fetch_vld_r    <= f0_valid_i;
         fetch_tag_r    <= f0_tag;
         fetch_idx_r    <= f0_idx;
@@ -90,7 +95,7 @@ always @(*) begin
     next_state = state;
     case(state)
         IDLE: begin
-            if(f0_valid_i && !inst_queue_full_i && !squash_pipe_i) begin
+            if(f0_valid_i && !stall_icache_i && !squash_pipe_i) begin
                 next_state <= TAG;
             end
         end

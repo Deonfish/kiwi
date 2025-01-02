@@ -75,7 +75,7 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
-assign req_ack_o = ~|reqq_vld_r;
+assign req_ack_o = ~req_vld_r | (~|reqq_vld_r);
 
 // write reqq
 

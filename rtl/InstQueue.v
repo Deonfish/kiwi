@@ -1,20 +1,21 @@
 module InstQueue(
     input         clk,
     input         rst_n,
-
+    // from Icache
     input [0:0]   icache_valid_i,
     input [63:0]  icache_pc_i,
     input [511:0] icache_data_i,
     output [0:0]  instq_full_o,
-
+    // to Fetch0
     output [0:0]  iq0_vld_o,
     output [63:0] iq0_pc_o,
     output [31:0] iq0_inst_o,
     output [0:0]  iq1_vld_o,
     output [63:0] iq1_pc_o,
     output [31:0] iq1_inst_o,
+    // stall from backend
     input [0:0]   stall_iq_i,
-
+    // squash from backend
     input [0:0]   flush_iq_i
 );
 

@@ -1,12 +1,15 @@
 
 module Fetch0 (
-	input clk,
-	input rst_n,
-	input [63:0] reset_vec,
-	input stall_f0_i,
-	input redir_i,
-	input [63:0] redir_pc_i,
-	output f0_valid_o,
+	input 		  clk,
+	input 		  rst_n,
+	input [63:0]  reset_vec,
+	// flush from wb
+	input 		  redir_i,
+	input [63:0]  redir_pc_i,
+	// stall from instQueue
+	input 		  stall_f0_i,
+	// to Icache
+	output 		  f0_valid_o,
 	output [63:0] f0_pc_o
 );
 
