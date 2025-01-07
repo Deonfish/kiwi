@@ -1,4 +1,4 @@
-module icache(
+module Icache(
     input             clk,
     input             rst_n,
     // from Fetch0
