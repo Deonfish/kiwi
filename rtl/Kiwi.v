@@ -180,6 +180,27 @@ wire [0:0] 						beu_endsim;
 wire [0:0] 						beu_auipc;
 wire [`SCOREBOARD_SIZE_WIDTH:0] beu_sid;
 
+wire [0:0] 						lsu_exe_valid;
+wire [0:0] 						lsu_rs1_valid;
+wire [63:0] 					lsu_rs1_value;
+wire [4:0] 						lsu_rs1;
+wire [0:0] 						lsu_rs2_valid;
+wire [63:0] 					lsu_rs2_value;
+wire [4:0] 						lsu_rs2;
+wire [0:0] 						lsu_rs3_valid;
+wire [63:0] 					lsu_rs3_value;
+wire [4:0] 						lsu_rs3;
+wire [0:0] 						lsu_rd_valid;
+wire [4:0] 						lsu_rd;
+wire [63:0] 					lsu_rd_value;
+wire [1:0] 						lsu_rd_type;
+wire [3:0] 						lsu_func_code;
+wire [2:0] 						lsu_func3;
+wire [1:0] 						lsu_func2;
+wire [0:0] 						lsu_endsim;
+wire [0:0] 						lsu_auipc;
+wire [`SCOREBOARD_SIZE_WIDTH:0] lsu_sid;
+
 assign reset_vec = 64'h0;
 
 Fetch0 u_Fetch0 (
@@ -527,25 +548,25 @@ Exe_sequencer u_Exe_sequencer (
 	.exe_beu_rd_auipc_o(beu_auipc),
 	.exe_beu_rd_sid_o(beu_sid),
 
-	.exe_lsu_valid_o(),
-	.exe_lsu_rs1_valid_o(),
-	.exe_lsu_rs1_value_o(),
-	.exe_lsu_rs1_o(),
-	.exe_lsu_rs2_valid_o(),
-	.exe_lsu_rs2_value_o(),
-	.exe_lsu_rs2_o(),
-	.exe_lsu_rs3_valid_o(),
-	.exe_lsu_rs3_value_o(),
-	.exe_lsu_rs3_o(),
-	.exe_lsu_rd_valid_o(),
-	.exe_lsu_rd_o(),
-	.exe_lsu_rd_type_o(),
-	.exe_lsu_rd_func_code_o(),
-	.exe_lsu_rd_func3_o(),
-	.exe_lsu_rd_func2_o(),
-	.exe_lsu_rd_endsim_o(),
-	.exe_lsu_rd_auipc_o(),
-	.exe_lsu_rd_sid_()o
+	.exe_lsu_valid_o(lsu_exe_valid),
+	.exe_lsu_rs1_valid_o(lsu_rs1_valid),
+	.exe_lsu_rs1_value_o(lsu_rs1_value),
+	.exe_lsu_rs1_o(lsu_rs1),
+	.exe_lsu_rs2_valid_o(lsu_rs2_valid),
+	.exe_lsu_rs2_value_o(lsu_rs2_value),
+	.exe_lsu_rs2_o(lsu_rs2),
+	.exe_lsu_rs3_valid_o(lsu_rs3_valid),
+	.exe_lsu_rs3_value_o(lsu_rs3_value),
+	.exe_lsu_rs3_o(lsu_rs3),
+	.exe_lsu_rd_valid_o(lsu_rd_valid),
+	.exe_lsu_rd_o(lsu_rd),
+	.exe_lsu_rd_type_o(lsu_rd_type),
+	.exe_lsu_rd_func_code_o(lsu_func_code),
+	.exe_lsu_rd_func3_o(lsu_func3),
+	.exe_lsu_rd_func2_o(lsu_func2),
+	.exe_lsu_rd_endsim_o(lsu_endsim),
+	.exe_lsu_rd_auipc_o(lsu_auipc),
+	.exe_lsu_rd_sid_o(lsu_sid)
 );
 
 ALU u_ALU0 (
@@ -611,6 +632,37 @@ BEU u_BEU (
 	// beu result
     .branch_redirect_o(),
     .branch_redirect_pc_o()
+);
+
+LSU u_LSU (
+	.clk(clk),
+	.rst_n(rst_n),
+	.stall_lsu_i(lsu_exe_stall),
+	.flush_lsu_i(1'b0),
+	// from operands
+	.lsu_valid_i(lsu_exe_valid),
+	.lsu_pc_i(lsu_pc),
+	.lsu_inst_i(lsu_inst),
+	.lsu_func3_i(lsu_func3),
+	.rs1_value_i(lsu_rs1_value),
+	.rs2_value_i(lsu_rs2_value),
+	.lsu_rd_i(lsu_rd),
+	.rd_value_i(lsu_rd_value),
+	// to uncache mem
+	.uncache_mem_vld_o(),
+	.uncache_mem_ready_i(),
+	.uncache_mem_write_o(),
+	.uncache_mem_size_o(),
+	.uncache_mem_addr_o(),
+	.uncache_mem_wdata_o(),
+	// from uncache mem
+	.uncache_mem_resp_vld_i(),
+	.uncache_mem_resp_rdy_o(),
+	.uncache_mem_resp_data_i(),
+	// to wb
+	.lsu_wb_valid_o(),
+	.lsu_wb_rd_o(),
+	.lsu_wb_data_o()
 );
 
 WriteBack u_WriteBack (
