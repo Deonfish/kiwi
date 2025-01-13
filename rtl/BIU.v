@@ -1,198 +1,226 @@
 module BIU(
-    input          clk,
-    input          rst_n,
-    // req
-    input  [0:0]   req_vld_i,
-    output [0:0]   req_ack_o,
-    input  [0:0]   req_rd_i,
-    input  [63:0]  req_addr_i,
-    input  [511:0] req_wdata_i,
-    // resp
-    output [0:0]   resp_vld_o,
-    input  [0:0]   resp_ack_i,
-    output [511:0] resp_rdata_o,
-    output [0:0]   resp_err_o,
-    // axi4-lite
-    output [0:0]   awvalid_o,
-    input  [0:0]   awready_i,
-    output [63:0]  awaddr_o,
-    output [0:0]   awprot_o,
-    output [0:0]   wvalid_o,
-    input  [0:0]   wready_i,
-    output [63:0]  wdata_o,
-    output [7:0]   wstrb_o,
-    input  [0:0]   bvalid_i,
-    output [0:0]   bready_o,
-    input  [1:0]   bresp_i,
-    output [0:0]   arvalid_o,
-    input  [0:0]   arready_i,
-    output [63:0]  araddr_o,
-    output [0:0]   arprot_o,
-    input  [0:0]   rvalid_i,
-    output [0:0]   rready_o,
-    input  [63:0]  rdata_i,
-    input  [1:0]   rresp_i
+    input                   clk,
+    input                   rst_n,
+    // cache req
+    input      [0:0]       cache_req_vld_i,
+    output reg [0:0]       cache_req_rdy_o,
+    input      [0:0]       cache_req_rd_i,
+    input      [63:0]      cache_req_addr_i,
+    input      [511:0]     cache_req_wdata_i,
+    // cache resp
+    output reg [0:0]       cache_resp_vld_o,
+    input      [0:0]       cache_resp_ack_i,
+    output reg [511:0]     cache_resp_rdata_o,
+    output reg [0:0]       cache_resp_err_o,
+    // uncache req
+    input      [0:0]       uncache_req_vld_i,
+    output reg [0:0]       uncache_req_rdy_o,
+    input      [0:0]       uncache_req_rd_i,
+    input      [63:0]      uncache_req_addr_i,
+    input      [63:0]      uncache_req_wdata_i,
+    // uncache resp
+    output reg [0:0]       uncache_resp_vld_o,
+    input      [0:0]       uncache_resp_rdy_i,
+    output reg [63:0]      uncache_resp_rdata_o,
+    output reg [0:0]       uncache_resp_err_o,
+    // axi3-lite
+    output reg [0:0]       awvalid_o,
+    input      [0:0]       awready_i,
+    output reg [63:0]      awaddr_o,
+    output reg [0:0]       awprot_o,
+    output reg [0:0]       wvalid_o,
+    input      [0:0]       wready_i,
+    output reg [63:0]      wdata_o,
+    output reg [7:0]       wstrb_o,
+    input      [0:0]       bvalid_i,
+    output reg [0:0]       bready_o,
+    input      [1:0]       bresp_i,
+    output reg [0:0]       arvalid_o,
+    input      [0:0]       arready_i,
+    output reg [63:0]      araddr_o,
+    output reg [0:0]       arprot_o,
+    input      [0:0]       rvalid_i,
+    output reg [0:0]       rready_o,
+    input      [63:0]      rdata_i,
+    input      [1:0]       rresp_i
 );
 
-reg [0:0]                req_vld_r;
-reg [0:0]                req_ack_r;
-reg [0:0]                req_rd_r;
-reg [63:0]               req_addr_r;
-reg [511:0]              req_wdata_r;
+localparam  ST_IDLE         = 3'd0,
+            ST_SEND_ADDR    = 3'd1,
+            ST_SEND_WRITE   = 3'd2,
+            ST_WAIT_RESP    = 3'd3,
+            ST_RESP         = 3'd4;
 
-reg [`BIU_REQQ_SIZE-1:0] reqq_vld_r;
-reg                      reqq_rd_r[`BIU_REQQ_SIZE];
-reg [63:0]               reqq_addr_r[`BIU_REQQ_SIZE];
-reg [63:0]               reqq_wdata_r[`BIU_REQQ_SIZE];
-reg [2:0]                reqq_rptr_r;
-wire                     reqq_rptr_incr;
+reg [2:0]  cur_state, next_state;
 
-wire ar_finished;
-wire aw_finished;
-wire w_finished;
-reg  aw_finished_r;
-reg  w_finished_r;
+reg [2:0]  beat_count;  // cache request beat count
 
-reg [`BIU_RESPQ_SIZE-1:0] respq_vld_r;
-reg [63:0]                respq_data_r[`BIU_RESPQ_SIZE];
-reg [2:0]                 respq_wptr_r;
-wire                      respq_wptr_incr;
+reg [63:0] req_addr;
+reg [511:0] req_wdata;
+reg [0:0]   req_is_read;    // read=1 / write=0
+reg [0:0]   req_is_cache;   // cache=1 / uncache=0
 
-// ------------- req channel ------------- //
+reg [511:0] read_data_accum;
 
 always @(posedge clk or negedge rst_n) begin
-    if(!rst_n) begin
-        req_vld_r <= 1'b0;
-    end
-    else if(req_vld_r) begin
-        req_vld_r <= 1'b0;
-    end
-    else if(req_ack_o) begin
-        req_vld_r   <= req_vld_i;
-        req_rd_r    <= req_rd_i;
-        req_addr_r  <= req_addr_i;
-        req_wdata_r <= req_wdata_i;
+    if (!rst_n) begin
+        cur_state <= ST_IDLE;
+    end else begin
+        cur_state <= next_state;
     end
 end
 
-assign req_ack_o = ~req_vld_r | (~|reqq_vld_r);
+always @(*) begin
+    next_state = cur_state;
+    case (cur_state)
+        ST_IDLE: begin
+            if (cache_req_vld_i) begin
+                next_state = ST_SEND_ADDR;
+            end else if (uncache_req_vld_i) begin
+                next_state = ST_SEND_ADDR;
+            end
+        end
 
-// write reqq
+        ST_SEND_ADDR: begin
+            if(req_is_cache) begin
+                if(beat_count == 3'd7 && (req_is_read && arready_i || req_is_write && awready_i)) begin
+                    next_state = ST_WAIT_RESP;
+                end else begin
+                    next_state = ST_SEND_ADDR;
+                end
+            end else begin
+                if(req_is_read && arready_i || req_is_write && awready_i) begin
+                    next_state = ST_WAIT_RESP;
+                end else begin
+                    next_state = ST_SEND_ADDR;
+                end
+            end
+        end
 
-genvar i;
-generate
-for(i=0; i<`BIU_REQQ_SIZE; i=i+1) begin
+        ST_SEND_WRITE: begin
+            if(beat_count == 3'd7 && awready_i) begin
+                next_state = ST_RESP;
+            end else begin
+                next_state = ST_SEND_WRITE;
+            end
+        end
 
-always @(posedge clk or negedge rst_n) begin
-    if(@rst_n) begin
-        reqq_vld_r[i] <= 'b0;
-    end
-    else if(req_vld_r) begin
-        reqq_vld_r[i]   <= 1'b1;
-        reqq_rd_r[i]    <= req_rd_r;
-        reqq_addr_r[i]  <= req_addr_r + i*8;
-        reqq_wdata_r[i] <= req_wdata_r[i*64+:64];
-    end
-    else if(reqq_rptr_incr && reqq_rptr_r == i) begin
-        reqq_vld_r[i] <= 1'b0;
-    end
-end
+        ST_WAIT_RESP: begin
+            if(req_is_cache) begin
+                if(beat_count == 3'd7 && rvalid_i) begin
+                    next_state = ST_RESP;
+                end
+                else begin
+                    next_state = ST_WAIT_RESP;
+                end
+            end
+            else begin
+                if(rvalid_i) begin
+                    next_state = ST_RESP;
+                end else begin
+                    next_state = ST_WAIT_RESP;
+                end
+            end
+        end
 
-end
-endgenerate
+        ST_RESP: begin
+            if(req_is_cache && cache_resp_ack_i || req_is_uncache && uncache_resp_rdy_i) begin
+                next_state = ST_IDLE;
+            end
+            else begin
+                next_state = ST_RESP;
+            end
+        end
 
-// read reqq
-
-assign reqq_rptr_incr = reqq_rd_r[reqq_rptr_r] && ar_finished ||
-                        !reqq_rd_r[reqq_rptr_r] && (aw_finished || aw_finished_r) && (w_finished || aw_finished_r);
-
-always @(posedge clk or negedge rst_n) begin
-    if(!rst_n) begin
-        reqq_rptr_r <= 'b0;
-    end
-    else if(reqq_rptr_incr) begin
-        reqq_rptr_r <= reqq_rptr_r + 1;
-    end
-end
-
-assign ar_finished = arvalid_o & arready_i;
-assign aw_finished = awvalid_o & awready_i;
-assign w_finished  = wvalid_o & wready_i;
-
-always @(posedge clk or negedge rst_n) begin
-    if(!rst_n) begin
-        aw_finished_r <= 1'b0;
-    end
-    else if(reqq_rptr_incr) begin
-        aw_finished_r <= 1'b0;
-    end
-    else if(aw_finished) begin
-        aw_finished_r <= 1'b1;
-    end
+        default: next_state = ST_IDLE;
+    endcase
 end
 
 always @(posedge clk or negedge rst_n) begin
-    if(!rst_n) begin
-        w_finished_r <= 1'b0;
-    end
-    else if(reqq_rptr_incr) begin
-        w_finished_r <= 1'b0;
-    end
-    else if(w_finished) begin
-        w_finished_r <= 1'b1;
+    if (!rst_n) begin
+        cache_req_rdy_o   <= 1'b0;
+        uncache_req_rdy_o <= 1'b0;
+        arvalid_o         <= 1'b0;
+        awvalid_o         <= 1'b0;
+        wvalid_o          <= 1'b0;
+        bready_o          <= 1'b1;
+        rready_o          <= 1'b1;
+        cache_resp_vld_o  <= 1'b0;
+        uncache_resp_vld_o<= 1'b0;
+        read_data_accum   <= 512'b0;
+        beat_count        <= 3'd0;
+    end else begin
+        // Defaults
+        cache_req_rdy_o    <= 1'b0;
+        uncache_req_rdy_o  <= 1'b0;
+        cache_resp_vld_o   <= 1'b0;
+        uncache_resp_vld_o <= 1'b0;
+
+        case (cur_state)
+            ST_IDLE: begin
+                cache_req_rdy_o   <= 1'b1;
+                uncache_req_rdy_o <= 1'b1;
+                beat_count        <= 3'd0;
+                if (cache_req_vld_i) begin
+                    req_is_cache <= 1'b1;
+                    req_is_read  <= cache_req_rd_i;
+                    req_addr     <= cache_req_addr_i;
+                    req_wdata    <= cache_req_wdata_i;
+                end else if (uncache_req_vld_i) begin
+                    req_is_cache <= 1'b0;
+                    req_is_read  <= uncache_req_rd_i;
+                    req_addr     <= uncache_req_addr_i;
+                    req_wdata    <= {448'b0, {uncache_req_wdata_i}};
+                end
+            end
+
+            ST_SEND_ADDR: begin
+                if (req_is_read) begin
+                    arvalid_o <= 1'b1;
+                    araddr_o  <= req_addr + (beat_count << 3);
+                    if(req_is_cache && arvalid_o && arready_i) begin
+                        beat_count <= beat_count + 1'b1;
+                    end
+                end else begin
+                    awvalid_o <= 1'b1;
+                    awaddr_o  <= req_addr + (beat_count << 3);
+                    if(req_is_cache && awvalid_o && awready_i) begin
+                        beat_count <= beat_count + 1'b1;
+                    end
+                end
+            end
+
+            ST_SEND_WRITE: begin
+                wvalid_o <= 1'b1;
+                wdata_o <= req_wdata[ (beat_count*64) +: 64];
+                wstrb_o <= 8'hFF;
+                if(req_is_cache && wvalid_o && wready_i) begin
+                    beat_count <= beat_count + 1'b1;
+                end
+            end
+
+            ST_WAIT_RESP: begin
+                if (rvalid_i) begin
+                    read_data_accum[(beat_count*64) +: 64] <= rdata_i;
+                    if (req_is_cache) begin
+                        beat_count <= beat_count + 1'b1;
+                    end
+                end
+            end
+
+            ST_RESP: begin
+                if (req_is_cache) begin
+                    cache_resp_vld_o   <= 1'b1;
+                    cache_resp_rdata_o <= read_data_accum; 
+                end else begin
+                    uncache_resp_vld_o   <= 1'b1;
+                    uncache_resp_rdata_o <= read_data_accum[63:0];
+                end
+            end
+
+            default: ;
+        endcase
     end
 end
-
-assign arvalid_o = reqq_vld_r[reqq_rptr_r] & reqq_rd_r[reqq_rptr_r];
-assign araddr_o  = reqq_addr_r[reqq_rptr_r];
-assign arprot_o  = 0;
-
-assign awvalid_o = reqq_vld_r[reqq_rptr_r] & ~reqq_rd_r[reqq_rptr_r];
-assign awaddr_o  = reqq_addr_r[reqq_rptr_r];
-assign awprot_o  = 0;
-
-assign wvalid_o  = reqq_vld_r[reqq_rptr_r] & ~reqq_rd_r[reqq_rptr_r];
-assign wdata_o  = reqq_wdata_r[reqq_rptr_r];
-assign wstrb_o  = 8'hff;
-
-// ------------- resp channel ------------- //
-
-assign bready_o = 1'b1;
-
-generate
-for(i=0; i<`BIU_RESPQ_SIZE; i=i+1) begin
-
-always @(posedge clk or negedge rst_n) begin
-    if(!rst_n) begin
-        respq_vld_r[i] <= 'b0;
-    end
-    else if(rvalid_i && rready_o && i == respq_wptr_r) begin
-        respq_vld_r[i] <= 1'b1;
-        respq_data_r[i] <= rdata_i;
-    end
-    else if(resp_vld_o & resp_ack_i) begin
-        respq_vld_r[i] <= 1'b0;
-    end
-end
-
-end
-endgenerate
-
-always @(posedge clk or negedge rst_n) begin
-    if(!rst_n) begin
-        respq_wptr_r = 'b0;
-    end
-    else if(respq_wptr_incr) begin
-        respq_wptr_r = respq_wptr_r + 1;
-    end
-end
-
-assign respq_wptr_incr = rvalid_i & rready_o;
-
-assign rready_o = ~|respq_vld_r;
-
-assign resp_vld_o = &respq_vld_r;
-assign resp_rdata_o = {respq_data_r[7], respq_data_r[6], respq_data_r[5], respq_data_r[4], respq_data_r[3], respq_data_r[2], respq_data_r[1], respq_data_r[0]};
-assign resp_err_o = 'b0;
 
 endmodule
