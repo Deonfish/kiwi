@@ -10,9 +10,11 @@ module Icache(
     output  [511:0]   icache_data_o,
     // icache miss to mem subsystem
     output  [0:0]     icache_miss_valid_o,
+    input   [0:0]     icache_miss_ready_i,
     output  [63:0]    icache_miss_addr_o,
     // refill from mem subsystem
     input   [0:0]     refill_icache_valid_i,
+    output  [0:0]     refill_icache_ready_o,
     input   [511:0]   refill_icache_data_i,
     // stall from instQueue
     input   [0:0]     stall_icache_i,
@@ -100,7 +102,7 @@ always @(*) begin
             end
         end
         TAG: begin
-            if(!hit) begin
+            if(!hit && icache_miss_ready_i) begin
                 next_state <= MISS;
             end
             else if(squash_pipe_i || hit && !f0_valid_i) begin
@@ -187,6 +189,8 @@ always @(posedge clk or negedge rst_n) begin
         refill_icache_data_r <= refill_icache_data_i;
     end
 end
+
+assign refill_icache_ready_o = 1'b1;
 
 assign refill_vld = refill_icache_valid_i && state == MISS;
 

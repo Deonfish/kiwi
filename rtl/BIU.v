@@ -9,7 +9,7 @@ module BIU(
     input      [511:0]     cache_req_wdata_i,
     // cache resp
     output reg [0:0]       cache_resp_vld_o,
-    input      [0:0]       cache_resp_ack_i,
+    input      [0:0]       cache_resp_rdy_i,
     output reg [511:0]     cache_resp_rdata_o,
     output reg [0:0]       cache_resp_err_o,
     // uncache req

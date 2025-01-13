@@ -26,9 +26,9 @@ module LSU (
 	input  [63:0] uncache_mem_resp_data_i,
 	// @todo: cache interface
 	// to wb
-	output [0:0]  lsu_wb_valid_o,
-	output [4:0]  lsu_wb_rd_o,
-	output [63:0] lsu_wb_data_o
+	output [0:0]  lsu_exe_valid_o,
+	output [4:0]  lsu_exe_rd_o,
+	output [63:0] lsu_exe_rd_value_o
 );
 
 localparam IDLE = 2'b00;
@@ -170,8 +170,8 @@ always @(posedge clk or negedge rst_n) begin
 	end
 end
 
-assign lsu_wb_valid_o = (state==SEND && store) || (state==WB && load);
-assign lsu_wb_rd_o = lsu_rd_r;
-assign lsu_wb_data_o = load_rd_value;
+assign lsu_exe_valid_o = (state==SEND && store) || (state==WB && load);
+assign lsu_exe_rd_o = lsu_rd_r;
+assign lsu_exe_rd_value_o = load_rd_value;
 
 endmodule

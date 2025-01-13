@@ -6,11 +6,7 @@ module BEU (
 	input 		  branch_valid_i,
 	input [63:0]  branch_pc_i,
 	input [31:0]  branch_inst_i,
-    input 		  rs1_bypass_en_i,
-    input [63:0]  rs1_bypass_data_i,
 	input [63:0]  rs1_value_i,
-    input 		  rs2_bypass_en_i,
-    input [63:0]  rs2_bypass_data_i,
 	input [63:0]  rs2_value_i,
 	input [3:0]   func_code_i, 
 
@@ -71,8 +67,8 @@ always @(posedge clk or negedge rst_n) begin
 		branch_valid_r <= 1'b1;
 		branch_valid_pc_r <= branch_pc_i;
 		branch_valid_inst_r <= branch_inst_i;
-		branch_rs1_value_r <= rs1_bypass_en_i ? rs1_bypass_data_i : rs1_value_i;
-		branch_rs2_value_r <= rs2_bypass_en_i ? rs2_bypass_data_i : rs2_value_i;
+		branch_rs1_value_r <= rs1_value_i;
+		branch_rs2_value_r <= rs2_value_i;
 		branch_func_code_r <= func_code_i;
 	end
 	else begin

@@ -8,11 +8,7 @@ module ALU (
 	input 		  alu_auipc_i,
 	input [63:0]  alu_pc_i,
 	input [31:0]  alu_inst_i,
-    input 		  rs1_bypass_en_i,
-    input [63:0]  rs1_bypass_data_i,
 	input [63:0]  rs1_value_i,
-    input 		  rs2_bypass_en_i,
-    input [63:0]  rs2_bypass_data_i,
 	input [63:0]  rs2_value_i,
 	input [3:0]   func_code_i, 
 	input 		  endsim_i,
@@ -90,8 +86,8 @@ always @(posedge clk or negedge rst_n) begin
 		alu_auipc_r <= alu_auipc;
 		alu_pc_r <= alu_pc_i;
 		alu_inst_r <= alu_inst_i;
-		alu_rs1_value_r <= rs1_bypass_en_i ? rs1_bypass_data_i : rs1_value_i;
-		alu_rs2_value_r <= rs2_bypass_en_i ? rs2_bypass_data_i : rs2_value_i;
+		alu_rs1_value_r <= rs1_value_i;
+		alu_rs2_value_r <= rs2_value_i;
 		alu_func_code_r <= func_code_i;
 	end	
 	else begin

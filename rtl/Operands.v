@@ -8,8 +8,6 @@ module Operands(
 	input flush_operands_i,
 	// from decoder
 	input [0:0]                      inst0_decoder_valid_i,
-	input [63:0]                     inst0_decoder_pc_i,
-	input [31:0]                     inst0_decoder_inst_i,
 	input [0:0]                      inst0_decoder_rs1_valid_i,
 	input [4:0]                      inst0_decoder_rs1_i,
 	input [0:0]                      inst0_decoder_rs2_valid_i,
@@ -26,8 +24,6 @@ module Operands(
 	input [0:0]                      inst0_decoder_auipc_i,
     input [`SCOREBOARD_SIZE_WIDTH:0] inst0_decoder_sid_i,
 	input [0:0]                      inst1_decoder_valid_i,
-	input [63:0]                     inst1_decoder_pc_i,
-	input [31:0]                     inst1_decoder_inst_i,
 	input [0:0]                      inst1_decoder_rs1_valid_i,
 	input [4:0]                      inst1_decoder_rs1_i,
 	input [0:0]                      inst1_decoder_rs2_valid_i,
@@ -45,8 +41,6 @@ module Operands(
     input [`SCOREBOARD_SIZE_WIDTH:0] inst1_decoder_sid_i,
 	// to execute
 	output [0:0]                        inst0_operands_valid_o,
-	output [63:0]                       inst0_operands_pc_o,
-	output [31:0]                       inst0_operands_inst_o,
 	output [0:0]                        inst0_operands_rs1_valid_o,
 	output [4:0]                        inst0_operands_rs1_o,
 	output [63:0]                       inst0_operands_rs1_value_o,
@@ -66,8 +60,6 @@ module Operands(
 	output [0:0]                        inst0_operands_auipc_o,
     output [`SCOREBOARD_SIZE_WIDTH:0]   inst0_operands_sid_o,
 	output [0:0]                        inst1_operands_valid_o,
-	output [63:0]                       inst1_operands_pc_o,
-	output [31:0]                       inst1_operands_inst_o,
 	output [0:0]                        inst1_operands_rs1_valid_o,
 	output [4:0]                        inst1_operands_rs1_o,
 	output [63:0]                       inst1_operands_rs1_value_o,
@@ -96,11 +88,6 @@ module Operands(
 );
 
 reg [0:0]  inst0_operands_valid_r;
-reg [63:0] inst0_operands_pc_r;
-reg [31:0] inst0_operands_inst_r;
-reg [0:0]  inst1_operands_valid_r;
-reg [63:0] inst1_operands_pc_r;
-reg [31:0] inst1_operands_inst_r;
 reg [0:0]  inst0_operands_rs1_valid_r;
 reg [4:0]  inst0_operands_rs1_r;
 reg [63:0] inst0_operands_rs1_value_r;
@@ -120,11 +107,6 @@ reg [0:0]  inst0_operands_endsim_r;
 reg [0:0]  inst0_operands_auipc_r;
 reg [`SCOREBOARD_SIZE_WIDTH:0] inst0_operands_sid_r;
 reg [0:0]  inst1_operands_valid_r;
-reg [63:0] inst1_operands_pc_r;
-reg [31:0] inst1_operands_inst_r;
-reg [0:0]  inst1_operands_valid_r;
-reg [63:0] inst1_operands_pc_r;
-reg [31:0] inst1_operands_inst_r;
 reg [0:0]  inst1_operands_rs1_valid_r;
 reg [4:0]  inst1_operands_rs1_r;
 reg [63:0] inst1_operands_rs1_value_r;
@@ -152,8 +134,6 @@ always @(posedge clk or negedge rst_n) begin
     end
     else if(!stall_operands_inst0_i) begin
         inst0_operands_valid_r <= inst0_decoder_valid_i;
-        inst0_operands_pc_r <= inst0_decoder_pc_i;
-        inst0_operands_inst_r <= inst0_decoder_inst_i;
         inst0_operands_rs1_valid_r <= inst0_decoder_rs1_valid_i;
         inst0_operands_rs1_r <= inst0_decoder_rs1_i;
         inst0_operands_rs2_valid_r <= inst0_decoder_rs2_valid_i;
@@ -181,8 +161,6 @@ always @(posedge clk or negedge rst_n) begin
     end
     else if(!stall_operands_inst1_i) begin
         inst1_operands_valid_r <= inst1_decoder_valid_i;
-        inst1_operands_pc_r <= inst1_decoder_pc_i;
-        inst1_operands_inst_r <= inst1_decoder_inst_i;
         inst1_operands_rs1_valid_r <= inst1_decoder_rs1_valid_i;
         inst1_operands_rs1_r <= inst1_decoder_rs1_i;
         inst1_operands_rs2_valid_r <= inst1_decoder_rs2_valid_i;
@@ -202,8 +180,6 @@ always @(posedge clk or negedge rst_n) begin
 end
 
 assign inst0_operands_valid_o = inst0_operands_valid_r;
-assign inst0_operands_pc_o = inst0_operands_pc_r;
-assign inst0_operands_inst_o = inst0_operands_inst_r;
 assign inst0_operands_rs1_valid_o = inst0_operands_rs1_valid_r;
 assign inst0_operands_rs1_o = inst0_operands_rs1_r;
 assign inst0_operands_rs2_valid_o = inst0_operands_rs2_valid_r;
@@ -221,8 +197,6 @@ assign inst0_operands_auipc_o = inst0_operands_auipc_r;
 assign inst0_operands_sid_o = inst0_operands_sid_r;
 
 assign inst1_operands_valid_o = inst1_operands_valid_r;
-assign inst1_operands_pc_o = inst1_operands_pc_r;
-assign inst1_operands_inst_o = inst1_operands_inst_r;
 assign inst1_operands_rs1_valid_o = inst1_operands_rs1_valid_r;
 assign inst1_operands_rs1_o = inst1_operands_rs1_r;
 assign inst1_operands_rs2_valid_o = inst1_operands_rs2_valid_r;
