@@ -1,21 +1,23 @@
 
 module ALU (
-	input 		  clk,
-	input 		  rst_n,
+	input                                   clk,
+	input                                   rst_n,
 	// from operands
-	input 		  alu_valid_i,
-	input [2:0]   alu_func3_i,
-	input 		  alu_auipc_i,
-	input [63:0]  alu_pc_i,
-	input [31:0]  alu_inst_i,
-	input [63:0]  rs1_value_i,
-	input [63:0]  rs2_value_i,
-	input [3:0]   func_code_i, 
-	input 		  endsim_i,
+	input                                  alu_valid_i,
+	input  [`SCOREBOARD_SIZE_WIDTH-1:0]    alu_sid_i,
+	input  [2:0]                           alu_func3_i,
+	input                                  alu_auipc_i,
+	input  [63:0]                          alu_pc_i,
+	input  [31:0]                          alu_inst_i,
+	input  [63:0]                          rs1_value_i,
+	input  [63:0]                          rs2_value_i,
+	input  [3:0]                           func_code_i,
+	input                                   endsim_i,
 	// alu result
-    output 		  alu_exe_valid_o,
-    output [4:0]  alu_exe_rd_o,
-    output [63:0] alu_exe_rd_value_o
+	output                                 alu_exe_valid_o,
+	output [`SCOREBOARD_SIZE_WIDTH-1:0]    alu_sid_o,
+	output [4:0]                           alu_exe_rd_o,
+	output [63:0]                          alu_exe_rd_value_o
 );
 
 reg alu_valid_r;
@@ -23,6 +25,7 @@ reg [2:0] alu_func3_r;
 reg alu_auipc_r;
 reg [63:0] alu_pc_r;
 reg [31:0] alu_inst_r;
+reg [`SCOREBOARD_SIZE_WIDTH-1:0] alu_sid_r;
 reg [63:0] alu_rs1_value_r;
 reg [63:0] alu_rs2_value_r;
 reg [3:0] alu_func_code_r;
@@ -72,13 +75,6 @@ wire [63:0] rd_data;
 always @(posedge clk or negedge rst_n) begin
 	if(!rst_n) begin
 		alu_valid_r <= 1'b0;
-		alu_func3_r <= 3'b0;
-		alu_auipc_r <= 1'b0;
-		alu_pc_r <= 64'h0;
-		alu_inst_r <= 32'h0;
-		alu_rs1_value_r <= 64'h0;
-		alu_rs2_value_r <= 64'h0;
-		alu_func_code_r <= 4'h0;
 	end
 	else if(alu_valid || endsim_i) begin
 		alu_valid_r <= 1'b1;
@@ -86,6 +82,7 @@ always @(posedge clk or negedge rst_n) begin
 		alu_auipc_r <= alu_auipc;
 		alu_pc_r <= alu_pc_i;
 		alu_inst_r <= alu_inst_i;
+		alu_sid_r <= alu_sid_i;
 		alu_rs1_value_r <= rs1_value_i;
 		alu_rs2_value_r <= rs2_value_i;
 		alu_func_code_r <= func_code_i;
@@ -179,5 +176,6 @@ assign rd_data = op32 ? {{32{rd_data32[31]}}, rd_data32} : rd_data64;
 assign alu_exe_valid_o = alu_valid_r;
 assign alu_exe_rd_o = alu_inst_r[11:7];
 assign alu_exe_rd_value_o = rd_data;
+assign alu_sid_o = alu_sid_r;
 
 endmodule

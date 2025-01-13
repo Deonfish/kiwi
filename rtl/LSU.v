@@ -8,6 +8,7 @@ module LSU (
 	input [0:0]  lsu_valid_i,
 	input [63:0] lsu_pc_i,
 	input [31:0] lsu_inst_i,
+	input [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_sid_i,
 	input [2:0]  lsu_func3_i,
 	input [63:0] rs1_value_i,
 	input [63:0] rs2_value_i,
@@ -28,7 +29,8 @@ module LSU (
 	// to wb
 	output [0:0]  lsu_exe_valid_o,
 	output [4:0]  lsu_exe_rd_o,
-	output [63:0] lsu_exe_rd_value_o
+	output [63:0] lsu_exe_rd_value_o,
+	output [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_sid_o
 );
 
 localparam IDLE = 2'b00;
@@ -121,6 +123,7 @@ always @(posedge clk or negedge rst_n) begin
 		lsu_valid_r <= lsu_valid_i;
 		lsu_pc_r <= lsu_pc_i;
 		lsu_inst_r <= lsu_inst_i;
+		lsu_sid_r <= lsu_sid_i;
 		lsu_func3_r <= lsu_func3_i;
 		lsu_rs1_value_r <= rs1_value_i;
 		lsu_rs2_value_r <= rs2_value_i;
@@ -173,5 +176,6 @@ end
 assign lsu_exe_valid_o = (state==SEND && store) || (state==WB && load);
 assign lsu_exe_rd_o = lsu_rd_r;
 assign lsu_exe_rd_value_o = load_rd_value;
+assign lsu_sid_o = lsu_sid_r;
 
 endmodule

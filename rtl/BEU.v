@@ -6,12 +6,14 @@ module BEU (
 	input 		  branch_valid_i,
 	input [63:0]  branch_pc_i,
 	input [31:0]  branch_inst_i,
+	input [`SCOREBOARD_SIZE_WIDTH-1:0] branch_sid_i,
 	input [63:0]  rs1_value_i,
 	input [63:0]  rs2_value_i,
 	input [3:0]   func_code_i, 
 
 	output 		  branch_redirect_o,
-	output [63:0] branch_redirect_pc_o
+	output [63:0] branch_redirect_pc_o,
+	output [`SCOREBOARD_SIZE_WIDTH-1:0] branch_sid_o
 );
 
 reg branch_valid_r;
@@ -114,9 +116,6 @@ assign redirect_pc = jal ? jal_target_pc : jalr ? jalr_target_pc : b_target_pc;
 
 assign branch_redirect_o = redirect;
 assign branch_redirect_pc_o = redirect_pc;
-
-assign branch_exe_valid_o = branch_valid_r;
-assign branch_exe_rd_o = branch_rd;
-assign branch_exe_bypass_data_o = wb_value;
+assign branch_sid_o = branch_sid_i;
 
 endmodule

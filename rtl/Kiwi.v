@@ -160,7 +160,9 @@ wire [2:0] 						alu0_op_func3;
 wire [1:0] 						alu0_op_func2;
 wire [0:0] 						alu0_op_endsim;
 wire [0:0] 						alu0_op_auipc;
-wire [`SCOREBOARD_SIZE_WIDTH:0] alu0_op_sid;
+wire [63:0] 					alu0_op_pc;
+wire [31:0] 					alu0_op_inst;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] alu0_op_sid;
 
 wire [0:0] 						alu1_op_valid;
 wire [0:0] 						alu1_op_rs1_valid;
@@ -180,7 +182,9 @@ wire [2:0] 						alu1_op_func3;
 wire [1:0] 						alu1_op_func2;
 wire [0:0] 						alu1_op_endsim;
 wire [0:0] 						alu1_op_auipc;
-wire [`SCOREBOARD_SIZE_WIDTH:0] alu1_op_sid;
+wire [63:0] 					alu1_op_pc;
+wire [31:0] 					alu1_op_inst;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] alu1_op_sid;
 
 wire [0:0] 						beu_op_valid;
 wire [0:0] 						beu_op_rs1_valid;
@@ -200,7 +204,9 @@ wire [2:0] 						beu_op_func3;
 wire [1:0] 						beu_op_func2;
 wire [0:0] 						beu_op_endsim;
 wire [0:0] 						beu_op_auipc;
-wire [`SCOREBOARD_SIZE_WIDTH:0] beu_op_sid;
+wire [63:0] 					beu_op_pc;
+wire [31:0] 					beu_op_inst;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] beu_op_sid;
 
 wire [0:0] 						lsu_op_valid;
 wire [0:0] 						lsu_op_rs1_valid;
@@ -221,12 +227,16 @@ wire [2:0] 						lsu_op_func3;
 wire [1:0] 						lsu_op_func2;
 wire [0:0] 						lsu_op_endsim;
 wire [0:0] 						lsu_op_auipc;
-wire [`SCOREBOARD_SIZE_WIDTH:0] lsu_op_sid;
+wire [63:0] 					lsu_op_pc;
+wire [31:0] 					lsu_op_inst;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_op_sid;
 
 wire [0:0] 	alu0_exe_valid;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] alu0_exe_sid;
 wire [4:0] 	alu0_exe_rd;
 wire [63:0] alu0_exe_rd_value;
 wire [0:0] 	alu1_exe_valid;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] alu1_exe_sid;
 wire [4:0] 	alu1_exe_rd;
 wire [63:0] alu1_exe_rd_value;
 wire [0:0] 	beu_exe_valid;
@@ -234,7 +244,9 @@ wire [4:0] 	beu_exe_rd;
 wire [63:0] beu_exe_rd_value;
 wire [0:0] 	beu_exe_redirect;
 wire [63:0] beu_exe_redirect_pc;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] beu_exe_sid;
 wire [0:0] 	lsu_exe_valid;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_exe_sid;
 wire [4:0] 	lsu_exe_rd;
 wire [63:0] lsu_exe_rd_value;
 
@@ -243,11 +255,13 @@ wire [63:0] exe_inst0_rd_value;
 wire [4:0] 	exe_inst0_rd;
 wire [0:0] 	exe_inst0_redirect;
 wire [63:0] exe_inst0_redirect_pc;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] exe_inst0_sid;
 wire [0:0] 	exe_inst1_valid;
 wire [63:0] exe_inst1_rd_value;
 wire [4:0] 	exe_inst1_rd;
 wire [0:0] 	exe_inst1_redirect;
 wire [63:0] exe_inst1_redirect_pc;
+wire [`SCOREBOARD_SIZE_WIDTH-1:0] exe_inst1_sid;
 
 wire [0:0] 	lsu_uncache_mem_vld;
 wire [0:0] 	lsu_uncache_mem_ready;
@@ -267,6 +281,7 @@ wire [63:0] wb_inst0_rd_value;
 wire [4:0] 	wb_inst0_rd;
 wire [0:0] 	wb_inst0_redirect;
 wire [63:0] wb_inst0_redirect_pc;
+
 wire [0:0] 	wb_inst1_valid;
 wire [`SCOREBOARD_SIZE_WIDTH:0] wb_inst1_sid;
 wire [63:0] wb_inst1_rd_value;
@@ -657,12 +672,14 @@ ALU u_ALU0 (
 	.alu_auipc_i(alu0_op_auipc),
 	.alu_pc_i(alu0_op_pc),
 	.alu_inst_i(alu0_op_inst),
+	.alu_sid_i(alu0_op_sid),
 	.rs1_value_i(alu0_op_rs1_value),
 	.rs2_value_i(alu0_op_rs2_value),
 	.func_code_i(alu0_op_func_code),
 	.endsim_i(alu0_op_endsim),
     // alu result
     .alu_exe_valid_o(alu0_exe_valid),
+	.alu_sid_o(alu0_exe_sid),
     .alu_exe_rd_o(alu0_exe_rd),
     .alu_exe_rd_value_o(alu0_exe_rd_value)
 );
@@ -676,12 +693,14 @@ ALU u_ALU1 (
 	.alu_auipc_i(alu1_op_auipc),
 	.alu_pc_i(alu1_op_pc),
 	.alu_inst_i(alu1_op_inst),
+	.alu_sid_i(alu1_op_sid),
 	.rs1_value_i(alu1_op_rs1_value),
 	.rs2_value_i(alu1_op_rs2_value),
 	.func_code_i(alu1_op_func_code),
 	.endsim_i(alu1_op_endsim),
     // alu result
     .alu_exe_valid_o(alu1_exe_valid),
+    .alu_sid_o(alu1_exe_sid),
     .alu_exe_rd_o(alu1_exe_rd),
     .alu_exe_rd_value_o(alu1_exe_rd_value)
 );
@@ -693,12 +712,14 @@ BEU u_BEU (
     .branch_valid_i(beu_op_valid),
     .branch_pc_i(beu_op_pc),
     .branch_inst_i(beu_op_inst),
+    .branch_sid_i(beu_op_sid),
     .rs1_value_i(beu_op_rs1_value),
     .rs2_value_i(beu_op_rs2_value),
     .func_code_i(beu_op_func_code),
 	// beu result
     .branch_redirect_o(beu_exe_redirect),
-    .branch_redirect_pc_o(beu_exe_redirect_pc)
+    .branch_redirect_pc_o(beu_exe_redirect_pc),
+    .branch_sid_o(beu_exe_sid)
 );
 
 LSU u_LSU (
@@ -710,6 +731,7 @@ LSU u_LSU (
 	.lsu_valid_i(lsu_op_valid),
 	.lsu_pc_i(lsu_op_pc),
 	.lsu_inst_i(lsu_op_inst),
+	.lsu_sid_i(lsu_op_sid),
 	.lsu_func3_i(lsu_op_func3),
 	.rs1_value_i(lsu_op_rs1_value),
 	.rs2_value_i(lsu_op_rs2_value),
@@ -729,7 +751,8 @@ LSU u_LSU (
 	// to wb
 	.lsu_exe_valid_o(lsu_exe_valid),
 	.lsu_exe_rd_o(lsu_exe_rd),
-	.lsu_exe_rd_value_o(lsu_exe_rd_value)
+	.lsu_exe_rd_value_o(lsu_exe_rd_value),
+	.lsu_sid_o(lsu_exe_sid)
 );
 
 BIU u_DBIU (
@@ -785,29 +808,35 @@ Exe_wb_sequencer u_Exe_wb_sequencer (
 	.alu0_exe_stall_i(alu0_exe_stall),
 	.alu0_exe_rd_value_i(alu0_exe_rd_value),
 	.alu0_exe_rd_i(alu0_exe_rd),
+	.alu0_exe_sid_i(alu0_exe_sid),
 	.alu1_exe_valid_i(alu1_exe_valid),
 	.alu1_exe_stall_i(alu1_exe_stall),
 	.alu1_exe_rd_value_i(alu1_exe_rd_value),
 	.alu1_exe_rd_i(alu1_exe_rd),
+	.alu1_exe_sid_i(alu1_exe_sid),
 	.beu_exe_valid_i(beu_exe_valid),
 	.beu_exe_stall_i(beu_exe_stall),
 	.beu_exe_rd_value_i(beu_exe_rd_value),
 	.beu_exe_rd_i(beu_exe_rd),
+	.beu_exe_sid_i(beu_exe_sid),
 	.lsu_exe_valid_i(lsu_exe_valid),
 	.lsu_exe_stall_i(lsu_exe_stall),
 	.lsu_exe_rd_value_i(lsu_exe_rd_value),
 	.lsu_exe_rd_i(lsu_exe_rd),
+	.lsu_exe_sid_i(lsu_exe_sid),
 	// to wb
 	.wb_inst0_valid_o(exe_inst0_valid),
 	.wb_inst0_data_o(exe_inst0_rd_value),
 	.wb_inst0_rd_o(exe_inst0_rd),
 	.wb_inst0_redirect_o(exe_inst0_redirect),
 	.wb_inst0_redirect_pc_o(exe_inst0_redirect_pc),
+	.wb_inst0_sid_o(exe_inst0_sid),
 	.wb_inst1_valid_o(exe_inst1_valid),
 	.wb_inst1_data_o(exe_inst1_rd_value),
 	.wb_inst1_rd_o(exe_inst1_rd),
 	.wb_inst1_redirect_o(exe_inst1_redirect),
-	.wb_inst1_redirect_pc_o(exe_inst1_redirect_pc)
+	.wb_inst1_redirect_pc_o(exe_inst1_redirect_pc),
+	.wb_inst1_sid_o(exe_inst1_sid)
 );
 
 WriteBack u_WriteBack (
@@ -829,12 +858,14 @@ WriteBack u_WriteBack (
 	// to wb
     .inst0_wb_valid_o(wb_inst0_valid),
     .inst0_wb_rd_o(wb_inst0_rd),
-    .inst0_wb_value_o(wb_inst0_data),
+    .inst0_wb_value_o(wb_inst0_rd_value),
     .inst0_wb_pc_o(wb_inst0_pc),
+	.inst0_wb_sid_o(wb_inst0_sid),
     .inst1_wb_valid_o(wb_inst1_valid),
     .inst1_wb_rd_o(wb_inst1_rd),
-    .inst1_wb_value_o(wb_inst1_data),
+    .inst1_wb_value_o(wb_inst1_rd_value),
     .inst1_wb_pc_o(wb_inst1_pc),
+	.inst1_wb_sid_o(wb_inst1_sid),
     .wb_redirect_o(wb_redirect),
     .wb_redirect_pc_o(wb_redirect_pc)
 );
@@ -844,15 +875,15 @@ Scoreboard u_Scoreboard (
     .rst_n(rst_n),
     // from decoder
     .decoder_inst0_vld_i(inst0_decoder_valid),
-    .decoder_inst0_exe_unit_i(inst0_exe_unit),
-    .decoder_inst0_rd_i(inst0_rd),
-    .decoder_inst0_rs1_i(inst0_rs1),
-    .decoder_inst0_rs2_i(inst0_rs2),
+    .decoder_inst0_exe_unit_i(inst0_decoder_exe_unit),
+    .decoder_inst0_rd_i(inst0_decoder_rd),
+    .decoder_inst0_rs1_i(inst0_decoder_rs1),
+    .decoder_inst0_rs2_i(inst0_decoder_rs2),
     .decoder_inst1_vld_i(inst1_decoder_valid),
-    .decoder_inst1_exe_unit_i(inst1_exe_unit),
-    .decoder_inst1_rd_i(inst1_rd),
-    .decoder_inst1_rs1_i(inst1_rs1),
-    .decoder_inst1_rs2_i(inst1_rs2),
+    .decoder_inst1_exe_unit_i(inst1_decoder_exe_unit),
+    .decoder_inst1_rd_i(inst1_decoder_rd),
+    .decoder_inst1_rs1_i(inst1_decoder_rs1),
+    .decoder_inst1_rs2_i(inst1_decoder_rs2),
     // to decoder
     .stall_decoder_inst0_o(stall_decoder_inst0),
     .stall_decoder_inst1_o(stall_decoder_inst1),
