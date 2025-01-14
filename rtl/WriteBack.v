@@ -77,6 +77,19 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
+assign inst0_wb_valid_o = inst0_wb_valid_r;
+assign inst0_wb_rd_o = inst0_wb_rd_r;
+assign inst0_wb_value_o = inst0_wb_value_r;
+assign inst0_wb_pc_o = inst0_wb_pc_r;
+assign inst0_wb_inst_o = inst0_wb_inst_r;
+assign inst0_wb_sid_o = inst0_wb_sid_r;
+assign inst1_wb_valid_o = inst1_wb_valid_r;
+assign inst1_wb_rd_o = inst1_wb_rd_r;
+assign inst1_wb_value_o = inst1_wb_value_r;
+assign inst1_wb_pc_o = inst1_wb_pc_r;
+assign inst1_wb_inst_o = inst1_wb_inst_r;
+assign inst1_wb_sid_o = inst1_wb_sid_r;
+
 assign wb_redirect = inst0_wb_redirect_i || inst1_wb_redirect_i;
 assign wb_redirect_pc = inst0_wb_redirect_i ? inst0_wb_redirect_pc_i : inst1_wb_redirect_pc_i;
 
