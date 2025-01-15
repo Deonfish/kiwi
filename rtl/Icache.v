@@ -63,6 +63,8 @@ reg [511:0] refill_icache_data_r;
 wire refill_vld;
 wire hit_refill;
 
+reg[15:0] outstanding_cnt;
+
 assign f0_hsk = f0_valid_i & !stall_icache_i && state!=MISS && !squash_pipe_i;
 
 assign f0_tag    = f0_pc_i[OFFSET_WIDTH+IDX_WIDTH +: TAG_WIDTH];
@@ -110,7 +112,7 @@ always @(*) begin
             end
         end
         MISS: begin
-            if(refill_icache_valid_r) begin
+            if(hit_refill) begin
                 next_state <= TAG;
             end
         end
@@ -194,12 +196,30 @@ assign refill_icache_ready_o = 1'b1;
 
 assign refill_vld = refill_icache_valid_i && state == MISS;
 
-assign hit_refill = refill_icache_valid_r;
+assign hit_refill = refill_icache_valid_r && outstanding_cnt == 1;
 
 assign victim_way = fifo_array_r[fetch_idx_r][1] ? 1 : 0;
 
 assign refill_way0 = refill_vld & victim_way == 0;
 assign refill_way1 = refill_vld & victim_way == 1;
+
+// outstanding cnt
+always @(posedge clk or negedge rst_n) begin
+    if(!rst_n) begin
+        outstanding_cnt <= 16'd0;
+    end
+    else if(icache_miss_valid_o && icache_miss_ready_i && refill_vld) begin
+        outstanding_cnt <= outstanding_cnt;
+    end
+    else if(icache_miss_valid_o && icache_miss_ready_i) begin
+        outstanding_cnt <= outstanding_cnt + 1;
+    end
+    else if(refill_vld) begin
+        outstanding_cnt <= outstanding_cnt - 1;
+    end
+end
+
+// sram model
 
 sram_model #(
 	.DATAWIDTH(TAG_WIDTH),
