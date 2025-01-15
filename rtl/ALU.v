@@ -2,6 +2,8 @@
 module ALU (
 	input                                   clk,
 	input                                   rst_n,
+	// flush
+	input                                   flush_i,
 	// from operands
 	input                                  alu_valid_i,
 	input  [`SCOREBOARD_SIZE_WIDTH-1:0]    alu_sid_i,
@@ -74,6 +76,9 @@ wire [63:0] rd_data;
 
 always @(posedge clk or negedge rst_n) begin
 	if(!rst_n) begin
+		alu_valid_r <= 1'b0;
+	end
+	else if(flush_i) begin
 		alu_valid_r <= 1'b0;
 	end
 	else if(alu_valid || endsim_i) begin

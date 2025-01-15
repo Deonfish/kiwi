@@ -296,8 +296,8 @@ Fetch0 u_Fetch0 (
 	.rst_n(rst_n),
 	.reset_vec(reset_vec),
     // flush from wb
-	.redir_i(1'b0),
-	.redir_pc_i(64'h0),
+	.redir_i(wb_redirect),
+	.redir_pc_i(wb_redirect_pc),
     // stall from instQueue
 	.stall_f0_i(instq_full),
     // to Icache
@@ -325,7 +325,7 @@ Icache u_Icache (
     // stall from instQueue
 	.stall_icache_i(instq_full),
     // squash from backend
-	.squash_pipe_i(1'b0)
+	.squash_pipe_i(wb_redirect)
 );
 
 BIU u_IBIU (
@@ -392,9 +392,9 @@ InstQueue u_InstQueue (
 	.iq1_pc_o(iq1_pc),
 	.iq1_inst_o(iq1_inst),
     // stall from backend
-	.stall_iq_i(1'b0),
+	.stall_iq_i(stall_decoder_inst0 | stall_decoder_inst1),
     // squash from backend
-	.flush_iq_i(stall_decoder_inst0 | stall_decoder_inst1)
+	.flush_iq_i(wb_redirect)
 );
 
 Decoder u_Decoder (
@@ -404,7 +404,7 @@ Decoder u_Decoder (
 	.stall_decoder_inst0_i(stall_decoder_inst0),
 	.stall_decoder_inst1_i(stall_decoder_inst1),
     // flush from wb
-	.flush_decoder_i(1'b0),
+	.flush_decoder_i(wb_redirect),
     // from instQueue
 	.inst0_f1_valid_i(iq0_vld),
 	.inst0_f1_pc_i(iq0_pc),
@@ -456,7 +456,7 @@ Operands u_Operands (
 	.stall_operands_inst0_i        (op_stall_inst0),
 	.stall_operands_inst1_i        (op_stall_inst1),
 	// flush from wb
-	.flush_operands_i              (1'b0),
+	.flush_operands_i              (wb_redirect),
 	// from decoder
 	.inst0_decoder_valid_i         (inst0_decoder_valid),
 	.inst0_decoder_rs1_valid_i     (inst0_decoder_rs1_valid),
@@ -666,6 +666,8 @@ Op_exe_sequencer u_Op_exe_sequencer (
 ALU u_ALU0 (
 	.clk                  (clk),
 	.rst_n                (rst_n),
+	// flush
+	.flush_i              (wb_redirect),
 	// from operands
 	.alu_valid_i          (alu0_op_valid),
 	.alu_func3_i          (alu0_op_func3), 
@@ -687,6 +689,8 @@ ALU u_ALU0 (
 ALU u_ALU1 (
 	.clk                  (clk),
 	.rst_n                (rst_n),
+	// flush
+	.flush_i              (wb_redirect),
 	// from operands
 	.alu_valid_i          (alu1_op_valid),
 	.alu_func3_i          (alu1_op_func3),
@@ -708,6 +712,8 @@ ALU u_ALU1 (
 BEU u_BEU (
     .clk                    (clk),
     .rst_n                  (rst_n),
+	// flush
+	.flush_i                (wb_redirect),
     // from operands
     .branch_valid_i         (beu_op_valid),
     .branch_pc_i            (beu_op_pc),
@@ -726,7 +732,7 @@ LSU u_LSU (
 	.clk                         (clk),
 	.rst_n                       (rst_n),
 	.stall_lsu_i                 (lsu_exe_stall),
-	.flush_lsu_i                 (1'b0),
+	.flush_lsu_i                 (wb_redirect),
 	// from operands
 	.lsu_valid_i                 (lsu_op_valid),
 	.lsu_pc_i                    (lsu_op_pc),

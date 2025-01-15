@@ -3,6 +3,8 @@ module BEU (
 	input clk,
 	input rst_n,
 
+	input flush_i,
+
 	input 		  branch_valid_i,
 	input [63:0]  branch_pc_i,
 	input [31:0]  branch_inst_i,
@@ -58,13 +60,10 @@ reg [31:0] branch_mnt_inst;
 always @(posedge clk or negedge rst_n) begin
 	if(!rst_n) begin
 		branch_valid_r 		<= 'b0;
-		branch_valid_pc_r   <= 'b0;
-		branch_valid_pc_r   <= 'b0;
-		branch_valid_inst_r <= 'b0;
-		branch_rs1_value_r  <= 'b0;
-		branch_rs2_value_r  <= 'b0;
-		branch_func_code_r  <= 'b0;
 	end	
+	else if(flush_i) begin
+		branch_valid_r <= 1'b0;
+	end
 	else if(branch_valid) begin
 		branch_valid_r <= 1'b1;
 		branch_valid_pc_r <= branch_pc_i;
