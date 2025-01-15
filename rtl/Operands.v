@@ -228,6 +228,6 @@ Regfile u_regfile(
     .inst1_rd_wvalid_i(inst1_wb_valid_i),
     .inst1_rd_waddr_i(inst1_wb_rd_i),
     .inst1_rd_wdata_i(inst1_wb_value_i)
-)
+);
 
 endmodule

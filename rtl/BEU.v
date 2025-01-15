@@ -64,7 +64,7 @@ always @(posedge clk or negedge rst_n) begin
 	else if(flush_i) begin
 		branch_valid_r <= 1'b0;
 	end
-	else if(branch_valid) begin
+	else if(branch_valid_i) begin
 		branch_valid_r <= 1'b1;
 		branch_valid_pc_r <= branch_pc_i;
 		branch_valid_inst_r <= branch_inst_i;

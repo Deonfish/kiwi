@@ -66,6 +66,8 @@ wire [63:0] mem_addr;
 wire [63:0] load_rd_value;
 wire [63:0] store_mem_value;
 
+reg [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_sid_r;
+
 always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         state <= IDLE;
@@ -101,7 +103,7 @@ always @(*) begin
             end
         end
 		WB: begin
-			if(lsu_wb_valid_o && !stall_lsu_i) begin
+			if(lsu_exe_valid_o && !stall_lsu_i) begin
 				next_state <= IDLE;
 			end
 		end
@@ -157,10 +159,10 @@ assign load_rd_value =  ({64{byteWidth}} & { lsu_rd_value_r[63:8],  mem_resp_dat
 						({64{wordWidth}} & { lsu_rd_value_r[63:32], mem_resp_data_r[31:0] }) |
 						({64{doubleWidth}} & { mem_resp_data_r[63:0] });
 
-assign store_mem_value = ({64{byteWidth}} & { 56'h0,  store_rs2_value_r[7:0] }) |
-						 ({64{halfWidth}} & { 48'h0, store_rs2_value_r[15:0] }) |
-						 ({64{wordWidth}} & { 32'h0, store_rs2_value_r[31:0] }) |
-						 ({64{doubleWidth}} & { store_rs2_value_r[63:0] });
+assign store_mem_value = ({64{byteWidth}} & { 56'h0,  lsu_rs2_value_r[7:0] }) |
+						 ({64{halfWidth}} & { 48'h0, lsu_rs2_value_r[15:0] }) |
+						 ({64{wordWidth}} & { 32'h0, lsu_rs2_value_r[31:0] }) |
+						 ({64{doubleWidth}} & { lsu_rs2_value_r[63:0] });
 
 assign uncache_mem_resp_rdy_o = 1'b1;
 

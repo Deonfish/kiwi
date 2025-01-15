@@ -269,4 +269,4 @@ data_array1 (
 	.Q			(tag_pipe_data[1])
 );
 
-endmodule`
+endmodule

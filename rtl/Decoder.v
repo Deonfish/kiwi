@@ -71,6 +71,36 @@ wire [3:0] inst0_func_code;
 wire [2:0] inst0_func3;
 wire [1:0] inst0_func2;
 
+wire [0:0] inst0_decoder_rs1_valid;
+wire [0:0] inst0_decoder_rs2_valid;
+wire [0:0] inst0_decoder_rs3_valid;
+wire [4:0] inst0_decoder_rs1;
+wire [4:0] inst0_decoder_rs2;
+wire [4:0] inst0_decoder_rs3;
+wire [1:0] inst0_decoder_rd_type;
+wire [4:0] inst0_decoder_rd;
+wire [5:0] inst0_decoder_exe_unit;
+wire [3:0] inst0_decoder_func_code;
+wire [2:0] inst0_decoder_func3;
+wire [1:0] inst0_decoder_func2;
+wire [0:0] inst0_decoder_endsim;
+wire [0:0] inst0_decoder_auipc;
+
+wire [0:0] inst1_decoder_rs1_valid;
+wire [0:0] inst1_decoder_rs2_valid;
+wire [0:0] inst1_decoder_rs3_valid;
+wire [4:0] inst1_decoder_rs1;
+wire [4:0] inst1_decoder_rs2;
+wire [4:0] inst1_decoder_rs3;
+wire [1:0] inst1_decoder_rd_type;
+wire [4:0] inst1_decoder_rd;
+wire [5:0] inst1_decoder_exe_unit;
+wire [3:0] inst1_decoder_func_code;
+wire [2:0] inst1_decoder_func3;
+wire [1:0] inst1_decoder_func2;
+wire [0:0] inst1_decoder_endsim;
+wire [0:0] inst1_decoder_auipc;
+
 assign inst0_decoder_valid_o = inst0_decoder_valid_r & !(stall_decoder_inst0_i | flush_decoder_i);
 assign inst0_decoder_pc_o = inst0_decoder_pc_r;
 assign inst0_decoder_inst_o = inst0_decoder_inst_r;

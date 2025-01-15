@@ -52,7 +52,6 @@ module Op_exe_sequencer(
     output [0:0]                      exe_alu0_rs3_valid_o,
     output [63:0]                     exe_alu0_rs3_value_o,
     output [4:0]                      exe_alu0_rs3_o,
-    output [0:0]                      exe_alu0_rd_valid_o,
     output [4:0]                      exe_alu0_rd_o,
     output [1:0]                      exe_alu0_rd_type_o,
     output [3:0]                      exe_alu0_rd_func_code_o,
@@ -72,7 +71,6 @@ module Op_exe_sequencer(
     output [0:0]                      exe_alu1_rs3_valid_o,
     output [63:0]                     exe_alu1_rs3_value_o,
     output [4:0]                      exe_alu1_rs3_o,
-    output [0:0]                      exe_alu1_rd_valid_o,
     output [4:0]                      exe_alu1_rd_o,
     output [1:0]                      exe_alu1_rd_type_o,
     output [3:0]                      exe_alu1_rd_func_code_o,
@@ -92,7 +90,6 @@ module Op_exe_sequencer(
     output [0:0]                      exe_beu_rs3_valid_o,
     output [63:0]                     exe_beu_rs3_value_o,
     output [4:0]                      exe_beu_rs3_o,
-    output [0:0]                      exe_beu_rd_valid_o,
     output [4:0]                      exe_beu_rd_o,
     output [1:0]                      exe_beu_rd_type_o,
     output [3:0]                      exe_beu_rd_func_code_o,
@@ -112,7 +109,6 @@ module Op_exe_sequencer(
     output [0:0]                      exe_lsu_rs3_valid_o,
     output [63:0]                     exe_lsu_rs3_value_o,
     output [4:0]                      exe_lsu_rs3_o,
-    output [0:0]                      exe_lsu_rd_valid_o,
     output [4:0]                      exe_lsu_rd_o,
     output [1:0]                      exe_lsu_rd_type_o,
     output [3:0]                      exe_lsu_rd_func_code_o,
@@ -152,7 +148,6 @@ assign exe_alu0_rs2_value_o = inst0_sel_alu0 ? inst0_operands_rs2_value_i : inst
 assign exe_alu0_rs3_valid_o = inst0_sel_alu0 ? inst0_operands_rs3_valid_i : inst1_operands_rs3_valid_i;
 assign exe_alu0_rs3_o = inst0_sel_alu0 ? inst0_operands_rs3_i : inst1_operands_rs3_i;
 assign exe_alu0_rs3_value_o = inst0_sel_alu0 ? inst0_operands_rs3_value_i : inst1_operands_rs3_value_i;
-assign exe_alu0_rd_valid_o  = inst0_sel_alu0 ? inst0_operands_rd_valid_i : inst1_operands_rd_valid_i;
 assign exe_alu0_rd_o = inst0_sel_alu0 ? inst0_operands_rd_i : inst1_operands_rd_i;
 assign exe_alu0_rd_type_o = inst0_sel_alu0 ? inst0_operands_rd_type_i : inst1_operands_rd_type_i;
 assign exe_alu0_rd_func_code_o = inst0_sel_alu0 ? inst0_operands_func_code_i : inst1_operands_func_code_i;
@@ -172,7 +167,6 @@ assign exe_alu1_rs2_value_o = inst0_sel_alu1 ? inst0_operands_rs2_value_i : inst
 assign exe_alu1_rs3_valid_o = inst0_sel_alu1 ? inst0_operands_rs3_valid_i : inst1_operands_rs3_valid_i;
 assign exe_alu1_rs3_o = inst0_sel_alu1 ? inst0_operands_rs3_i : inst1_operands_rs3_i;
 assign exe_alu1_rs3_value_o = inst0_sel_alu1 ? inst0_operands_rs3_value_i : inst1_operands_rs3_value_i;
-assign exe_alu1_rd_valid_o  = inst0_sel_alu1 ? inst0_operands_rd_valid_i : inst1_operands_rd_valid_i;
 assign exe_alu1_rd_o = inst0_sel_alu1 ? inst0_operands_rd_i : inst1_operands_rd_i;
 assign exe_alu1_rd_type_o = inst0_sel_alu1 ? inst0_operands_rd_type_i : inst1_operands_rd_type_i;
 assign exe_alu1_rd_func_code_o = inst0_sel_alu1 ? inst0_operands_func_code_i : inst1_operands_func_code_i;
@@ -192,7 +186,6 @@ assign exe_beu_rs2_value_o = inst0_sel_beu ? inst0_operands_rs2_value_i : inst1_
 assign exe_beu_rs3_valid_o = inst0_sel_beu ? inst0_operands_rs3_valid_i : inst1_operands_rs3_valid_i;
 assign exe_beu_rs3_o = inst0_sel_beu ? inst0_operands_rs3_i : inst1_operands_rs3_i;
 assign exe_beu_rs3_value_o = inst0_sel_beu ? inst0_operands_rs3_value_i : inst1_operands_rs3_value_i;
-assign exe_beu_rd_valid_o  = inst0_sel_beu ? inst0_operands_rd_valid_i : inst1_operands_rd_valid_i;
 assign exe_beu_rd_o = inst0_sel_beu ? inst0_operands_rd_i : inst1_operands_rd_i;
 assign exe_beu_rd_type_o = inst0_sel_beu ? inst0_operands_rd_type_i : inst1_operands_rd_type_i;
 assign exe_beu_rd_func_code_o = inst0_sel_beu ? inst0_operands_func_code_i : inst1_operands_func_code_i;
@@ -212,7 +205,6 @@ assign exe_lsu_rs2_value_o = inst0_sel_lsu ? inst0_operands_rs2_value_i : inst1_
 assign exe_lsu_rs3_valid_o = inst0_sel_lsu ? inst0_operands_rs3_valid_i : inst1_operands_rs3_valid_i;
 assign exe_lsu_rs3_o = inst0_sel_lsu ? inst0_operands_rs3_i : inst1_operands_rs3_i;
 assign exe_lsu_rs3_value_o = inst0_sel_lsu ? inst0_operands_rs3_value_i : inst1_operands_rs3_value_i;
-assign exe_lsu_rd_valid_o  = inst0_sel_lsu ? inst0_operands_rd_valid_i : inst1_operands_rd_valid_i;
 assign exe_lsu_rd_o = inst0_sel_lsu ? inst0_operands_rd_i : inst1_operands_rd_i;
 assign exe_lsu_rd_type_o = inst0_sel_lsu ? inst0_operands_rd_type_i : inst1_operands_rd_type_i;
 assign exe_lsu_rd_func_code_o = inst0_sel_lsu ? inst0_operands_func_code_i : inst1_operands_func_code_i;

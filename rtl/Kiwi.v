@@ -40,7 +40,7 @@ module Kiwi(
     input         dbiu_axi_rvalid,
     input [63:0]  dbiu_axi_rdata,
     input [1:0]   dbiu_axi_rresp,
-    output        dbiu_axi_rready,
+    output        dbiu_axi_rready
 );
 
 wire [63:0] f0_pc;

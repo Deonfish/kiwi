@@ -83,13 +83,13 @@ always @(*) begin
 
         ST_SEND_ADDR: begin
             if(req_is_cache) begin
-                if(beat_count == 3'd7 && (req_is_read && arready_i || req_is_write && awready_i)) begin
+                if(beat_count == 3'd7 && (req_is_read && arready_i || !req_is_read && awready_i)) begin
                     next_state = ST_WAIT_RESP;
                 end else begin
                     next_state = ST_SEND_ADDR;
                 end
             end else begin
-                if(req_is_read && arready_i || req_is_write && awready_i) begin
+                if(req_is_read && arready_i || !req_is_read && awready_i) begin
                     next_state = ST_WAIT_RESP;
                 end else begin
                     next_state = ST_SEND_ADDR;
@@ -124,7 +124,7 @@ always @(*) begin
         end
 
         ST_RESP: begin
-            if(req_is_cache && cache_resp_ack_i || req_is_uncache && uncache_resp_rdy_i) begin
+            if(req_is_cache && cache_resp_vld_o || !req_is_cache && uncache_resp_rdy_i) begin
                 next_state = ST_IDLE;
             end
             else begin

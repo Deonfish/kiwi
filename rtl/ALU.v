@@ -81,10 +81,10 @@ always @(posedge clk or negedge rst_n) begin
 	else if(flush_i) begin
 		alu_valid_r <= 1'b0;
 	end
-	else if(alu_valid || endsim_i) begin
+	else if(alu_valid_i || endsim_i) begin
 		alu_valid_r <= 1'b1;
-		alu_func3_r <= alu_func3;
-		alu_auipc_r <= alu_auipc;
+		alu_func3_r <= alu_func3_i;
+		alu_auipc_r <= alu_auipc_i;
 		alu_pc_r <= alu_pc_i;
 		alu_inst_r <= alu_inst_i;
 		alu_sid_r <= alu_sid_i;
