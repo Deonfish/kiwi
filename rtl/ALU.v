@@ -6,7 +6,7 @@ module ALU (
 	input                                   flush_i,
 	// from operands
 	input                                  alu_valid_i,
-	input  [`SCOREBOARD_SIZE_WIDTH-1:0]    alu_sid_i,
+	input  [`SCOREBOARD_SIZE_WIDTH:0]    alu_sid_i,
 	input  [2:0]                           alu_func3_i,
 	input                                  alu_auipc_i,
 	input  [63:0]                          alu_pc_i,
@@ -17,7 +17,7 @@ module ALU (
 	input                                   endsim_i,
 	// alu result
 	output                                 alu_exe_valid_o,
-	output [`SCOREBOARD_SIZE_WIDTH-1:0]    alu_sid_o,
+	output [`SCOREBOARD_SIZE_WIDTH:0]    alu_sid_o,
 	output [4:0]                           alu_exe_rd_o,
 	output [63:0]                          alu_exe_rd_value_o
 );
@@ -27,7 +27,7 @@ reg [2:0] alu_func3_r;
 reg alu_auipc_r;
 reg [63:0] alu_pc_r;
 reg [31:0] alu_inst_r;
-reg [`SCOREBOARD_SIZE_WIDTH-1:0] alu_sid_r;
+reg [`SCOREBOARD_SIZE_WIDTH:0] alu_sid_r;
 reg [63:0] alu_rs1_value_r;
 reg [63:0] alu_rs2_value_r;
 reg [3:0] alu_func_code_r;

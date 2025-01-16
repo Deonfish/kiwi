@@ -8,7 +8,7 @@ module LSU (
 	input [0:0]  lsu_valid_i,
 	input [63:0] lsu_pc_i,
 	input [31:0] lsu_inst_i,
-	input [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_sid_i,
+	input [`SCOREBOARD_SIZE_WIDTH:0] lsu_sid_i,
 	input [2:0]  lsu_func3_i,
 	input [63:0] rs1_value_i,
 	input [63:0] rs2_value_i,
@@ -30,7 +30,7 @@ module LSU (
 	output [0:0]  lsu_exe_valid_o,
 	output [4:0]  lsu_exe_rd_o,
 	output [63:0] lsu_exe_rd_value_o,
-	output [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_sid_o
+	output [`SCOREBOARD_SIZE_WIDTH:0] lsu_sid_o
 );
 
 localparam IDLE = 2'b00;
@@ -66,7 +66,7 @@ wire [63:0] mem_addr;
 wire [63:0] load_rd_value;
 wire [63:0] store_mem_value;
 
-reg [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_sid_r;
+reg [`SCOREBOARD_SIZE_WIDTH:0] lsu_sid_r;
 
 always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin

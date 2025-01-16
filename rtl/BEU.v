@@ -8,14 +8,14 @@ module BEU (
 	input 		  branch_valid_i,
 	input [63:0]  branch_pc_i,
 	input [31:0]  branch_inst_i,
-	input [`SCOREBOARD_SIZE_WIDTH-1:0] branch_sid_i,
+	input [`SCOREBOARD_SIZE_WIDTH:0] branch_sid_i,
 	input [63:0]  rs1_value_i,
 	input [63:0]  rs2_value_i,
 	input [3:0]   func_code_i, 
 
 	output 		  branch_redirect_o,
 	output [63:0] branch_redirect_pc_o,
-	output [`SCOREBOARD_SIZE_WIDTH-1:0] branch_sid_o
+	output [`SCOREBOARD_SIZE_WIDTH:0] branch_sid_o
 );
 
 reg branch_valid_r;

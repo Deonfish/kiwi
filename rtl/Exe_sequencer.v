@@ -222,13 +222,15 @@ module Exe_wb_sequencer(
     input [0:0]                      alu0_exe_stall_i,
     input [63:0]                     alu0_exe_rd_value_i,
     input [4:0]                      alu0_exe_rd_i,
-    input [`SCOREBOARD_SIZE_WIDTH-1:0] alu0_exe_sid_i,
+    input [`SCOREBOARD_SIZE_WIDTH:0] alu0_exe_sid_i,
+    input [31:0]                     alu0_exe_inst_i,
     // from alu1
     input [0:0]                      alu1_exe_valid_i,
     input [0:0]                      alu1_exe_stall_i,
     input [63:0]                     alu1_exe_rd_value_i,
     input [4:0]                      alu1_exe_rd_i,
-    input [`SCOREBOARD_SIZE_WIDTH-1:0] alu1_exe_sid_i,
+    input [`SCOREBOARD_SIZE_WIDTH:0] alu1_exe_sid_i,
+    input [31:0]                     alu1_exe_inst_i,
     // from beu
     input [0:0]                      beu_exe_valid_i,
     input [0:0]                      beu_exe_stall_i,
@@ -236,26 +238,30 @@ module Exe_wb_sequencer(
     input [4:0]                      beu_exe_rd_i,
     input [0:0]                      beu_exe_redirect_i,
     input [63:0]                     beu_exe_redirect_pc_i,
-    input [`SCOREBOARD_SIZE_WIDTH-1:0] beu_exe_sid_i,
+    input [`SCOREBOARD_SIZE_WIDTH:0] beu_exe_sid_i,
+    input [31:0]                     beu_exe_inst_i,
     // from lsu
     input [0:0]                      lsu_exe_valid_i,
     input [0:0]                      lsu_exe_stall_i,
     input [63:0]                     lsu_exe_rd_value_i,
     input [4:0]                      lsu_exe_rd_i,
-    input [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_exe_sid_i,
+    input [`SCOREBOARD_SIZE_WIDTH:0] lsu_exe_sid_i,
+    input [31:0]                     lsu_exe_inst_i,
     // to wb
     output [0:0]                     wb_inst0_valid_o,
     output [63:0]                    wb_inst0_data_o,
     output [4:0]                     wb_inst0_rd_o,
     output [0:0]                     wb_inst0_redirect_o,
     output [63:0]                    wb_inst0_redirect_pc_o,
-    output [`SCOREBOARD_SIZE_WIDTH-1:0] wb_inst0_sid_o,
+    output [31:0]                    wb_inst0_inst_o,
+    output [`SCOREBOARD_SIZE_WIDTH:0] wb_inst0_sid_o,
     output [0:0]                     wb_inst1_valid_o,
     output [63:0]                    wb_inst1_data_o,
     output [4:0]                     wb_inst1_rd_o,
     output [0:0]                     wb_inst1_redirect_o,
     output [63:0]                    wb_inst1_redirect_pc_o,
-    output [`SCOREBOARD_SIZE_WIDTH-1:0] wb_inst1_sid_o
+    output [31:0]                    wb_inst1_inst_o,
+    output [`SCOREBOARD_SIZE_WIDTH:0] wb_inst1_sid_o
 );
 
 wire alu0_sel_wb0;
@@ -315,5 +321,15 @@ assign wb_inst1_sid_o = {`SCOREBOARD_SIZE_WIDTH{alu0_sel_wb1}} & alu0_exe_sid_i 
                        {`SCOREBOARD_SIZE_WIDTH{alu1_sel_wb1}} & alu1_exe_sid_i | 
                        {`SCOREBOARD_SIZE_WIDTH{beu_sel_wb1}} & beu_exe_sid_i | 
                        {`SCOREBOARD_SIZE_WIDTH{lsu_sel_wb1}} & lsu_exe_sid_i;
+
+assign wb_inst0_inst_o = {32{alu0_sel_wb0}} & alu0_exe_inst_i | 
+                        {32{alu1_sel_wb0}} & alu1_exe_inst_i | 
+                        {32{beu_sel_wb0}} & beu_exe_inst_i | 
+                        {32{lsu_sel_wb0}} & lsu_exe_inst_i;
+
+assign wb_inst1_inst_o = {32{alu0_sel_wb1}} & alu0_exe_inst_i | 
+                        {32{alu1_sel_wb1}} & alu1_exe_inst_i | 
+                        {32{beu_sel_wb1}} & beu_exe_inst_i | 
+                        {32{lsu_sel_wb1}} & lsu_exe_inst_i;
 
 endmodule

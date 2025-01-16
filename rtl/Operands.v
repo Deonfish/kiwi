@@ -52,6 +52,7 @@ module Operands(
 	output [63:0]                       inst0_operands_rs3_value_o,
 	output [1:0]                        inst0_operands_rd_type_o,
 	output [4:0]                        inst0_operands_rd_o,
+	output [63:0]                       inst0_operands_rd_value_o,
 	output [5:0]                        inst0_operands_h_exe_unit_o,
 	output [3:0]                        inst0_operands_func_code_o,
 	output [2:0]                        inst0_operands_func3_o,
@@ -71,6 +72,7 @@ module Operands(
 	output [63:0]                       inst1_operands_rs3_value_o,
 	output [1:0]                        inst1_operands_rd_type_o,
 	output [4:0]                        inst1_operands_rd_o,
+	output [63:0]                       inst1_operands_rd_value_o,
 	output [5:0]                        inst1_operands_h_exe_unit_o,
 	output [3:0]                        inst1_operands_func_code_o,
 	output [2:0]                        inst1_operands_func3_o,
@@ -216,18 +218,26 @@ assign inst1_operands_sid_o = inst1_operands_sid_r;
 Regfile u_regfile(
     .clk(clk),
     .rst_n(rst_n),
-    .inst0_rs1_addr_i(inst0_decoder_rs1_i),
-    .inst0_rs2_addr_i(inst0_decoder_rs2_i),
-    .inst0_rd_addr_i(inst0_decoder_rd_i),
-    .inst1_rs1_addr_i(inst1_decoder_rs1_i),
-    .inst1_rs2_addr_i(inst1_decoder_rs2_i),
-    .inst1_rd_addr_i(inst1_decoder_rd_i),
-    .inst0_rd_wvalid_i(inst0_wb_valid_i),
-    .inst0_rd_waddr_i(inst0_wb_rd_i),
-    .inst0_rd_wdata_i(inst0_wb_value_i),
-    .inst1_rd_wvalid_i(inst1_wb_valid_i),
-    .inst1_rd_waddr_i(inst1_wb_rd_i),
-    .inst1_rd_wdata_i(inst1_wb_value_i)
+	// read
+	.inst0_rs1_addr_i(inst0_decoder_rs1_i),
+	.inst0_rs2_addr_i(inst0_decoder_rs2_i),
+	.inst0_rd_addr_i(inst0_decoder_rd_i),
+	.inst0_rs1_rdata_o(inst0_operands_rs1_value_o),
+	.inst0_rs2_rdata_o(inst0_operands_rs2_value_o),
+	.inst0_rd_rdata_o(inst0_operands_rd_value_o),
+	.inst1_rs1_addr_i(inst1_decoder_rs1_i),
+	.inst1_rs2_addr_i(inst1_decoder_rs2_i),
+	.inst1_rd_addr_i(inst1_decoder_rd_i),
+	.inst1_rs1_rdata_o(inst1_operands_rs1_value_o),
+	.inst1_rs2_rdata_o(inst1_operands_rs2_value_o),
+	.inst1_rd_rdata_o(inst1_operands_rd_value_o),
+	// write
+	.inst0_rd_wvalid_i(inst0_wb_valid_i),
+	.inst0_rd_waddr_i(inst0_wb_rd_i),
+	.inst0_rd_wdata_i(inst0_wb_value_i),
+	.inst1_rd_wvalid_i(inst1_wb_valid_i),
+	.inst1_rd_waddr_i(inst1_wb_rd_i),
+	.inst1_rd_wdata_i(inst1_wb_value_i)
 );
 
 endmodule

@@ -52,6 +52,7 @@ wire [511:0] icache_data;
 wire [0:0] icache_miss_valid;
 wire [0:0] icache_miss_ready;
 wire [0:0] refill_icache_ready;
+wire [511:0] refill_icache_data;
 wire [63:0] icache_miss_addr;
 wire [0:0] instq_full;
 wire [0:0] iq0_vld;
@@ -61,11 +62,11 @@ wire [0:0] iq1_vld;
 wire [63:0] iq1_pc;
 wire [31:0] iq1_inst;
 wire [0:0] inst0_decoder_valid;
-wire [63:0] inst0_pc;
-wire [31:0] inst0_inst;
+wire [63:0] inst0_decoder_pc;
+wire [31:0] inst0_decoder_inst;
 wire [0:0] inst1_decoder_valid;
-wire [63:0] inst1_pc;
-wire [31:0] inst1_inst;
+wire [63:0] inst1_decoder_pc;
+wire [31:0] inst1_decoder_inst;
 wire [0:0] inst0_decoder_rs1_valid;
 wire [4:0] inst0_decoder_rs1;
 wire [0:0] inst0_decoder_rs2_valid;
@@ -74,6 +75,7 @@ wire [0:0] inst0_decoder_rs3_valid;
 wire [4:0] inst0_decoder_rs3;
 wire [1:0] inst0_decoder_rd_type;
 wire [4:0] inst0_decoder_rd;
+wire [5:0] inst0_decoder_exe_unit;
 wire [3:0] inst0_decoder_func_code;
 wire [2:0] inst0_decoder_func3;
 wire [1:0] inst0_decoder_func2;
@@ -87,7 +89,7 @@ wire [0:0] inst1_decoder_rs3_valid;
 wire [4:0] inst1_decoder_rs3;
 wire [1:0] inst1_decoder_rd_type;
 wire [4:0] inst1_decoder_rd;
-wire [5:0] inst1_decoder_h_exe_unit;
+wire [5:0] inst1_decoder_exe_unit;
 wire [3:0] inst1_decoder_func_code;
 wire [2:0] inst1_decoder_func3;
 wire [1:0] inst1_decoder_func2;
@@ -113,6 +115,7 @@ wire [4:0]  inst0_operands_rs3;
 wire [63:0] inst0_operands_rs3_value;
 wire [1:0]  inst0_operands_rd_type;
 wire [4:0]  inst0_operands_rd;
+wire [63:0] inst0_operands_rd_value;
 wire [5:0]  inst0_operands_h_exe_unit;
 wire [3:0]  inst0_operands_func_code;
 wire [2:0]  inst0_operands_func3;
@@ -134,6 +137,7 @@ wire [4:0]  inst1_operands_rs3;
 wire [63:0] inst1_operands_rs3_value;
 wire [1:0]  inst1_operands_rd_type;
 wire [4:0]  inst1_operands_rd;
+wire [63:0] inst1_operands_rd_value;
 wire [5:0]  inst1_operands_h_exe_unit;
 wire [3:0]  inst1_operands_func_code;
 wire [2:0]  inst1_operands_func3;
@@ -152,7 +156,6 @@ wire [4:0] 						alu0_op_rs2;
 wire [0:0] 						alu0_op_rs3_valid;
 wire [63:0] 					alu0_op_rs3_value;
 wire [4:0] 						alu0_op_rs3;
-wire [0:0] 						alu0_op_rd_valid;
 wire [4:0] 						alu0_op_rd;
 wire [1:0] 						alu0_op_rd_type;
 wire [3:0] 						alu0_op_func_code;
@@ -162,7 +165,7 @@ wire [0:0] 						alu0_op_endsim;
 wire [0:0] 						alu0_op_auipc;
 wire [63:0] 					alu0_op_pc;
 wire [31:0] 					alu0_op_inst;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] alu0_op_sid;
+wire [`SCOREBOARD_SIZE_WIDTH:0] alu0_op_sid;
 
 wire [0:0] 						alu1_op_valid;
 wire [0:0] 						alu1_op_rs1_valid;
@@ -174,7 +177,6 @@ wire [4:0] 						alu1_op_rs2;
 wire [0:0] 						alu1_op_rs3_valid;
 wire [63:0] 					alu1_op_rs3_value;
 wire [4:0] 						alu1_op_rs3;
-wire [0:0] 						alu1_op_rd_valid;
 wire [4:0] 						alu1_op_rd;
 wire [1:0] 						alu1_op_rd_type;
 wire [3:0] 						alu1_op_func_code;
@@ -184,7 +186,7 @@ wire [0:0] 						alu1_op_endsim;
 wire [0:0] 						alu1_op_auipc;
 wire [63:0] 					alu1_op_pc;
 wire [31:0] 					alu1_op_inst;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] alu1_op_sid;
+wire [`SCOREBOARD_SIZE_WIDTH:0] alu1_op_sid;
 
 wire [0:0] 						beu_op_valid;
 wire [0:0] 						beu_op_rs1_valid;
@@ -196,7 +198,6 @@ wire [4:0] 						beu_op_rs2;
 wire [0:0] 						beu_op_rs3_valid;
 wire [63:0] 					beu_op_rs3_value;
 wire [4:0] 						beu_op_rs3;
-wire [0:0] 						beu_op_rd_valid;
 wire [4:0] 						beu_op_rd;
 wire [1:0] 						beu_op_rd_type;
 wire [3:0] 						beu_op_func_code;
@@ -206,7 +207,7 @@ wire [0:0] 						beu_op_endsim;
 wire [0:0] 						beu_op_auipc;
 wire [63:0] 					beu_op_pc;
 wire [31:0] 					beu_op_inst;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] beu_op_sid;
+wire [`SCOREBOARD_SIZE_WIDTH:0] beu_op_sid;
 
 wire [0:0] 						lsu_op_valid;
 wire [0:0] 						lsu_op_rs1_valid;
@@ -218,7 +219,6 @@ wire [4:0] 						lsu_op_rs2;
 wire [0:0] 						lsu_op_rs3_valid;
 wire [63:0] 					lsu_op_rs3_value;
 wire [4:0] 						lsu_op_rs3;
-wire [0:0] 						lsu_op_rd_valid;
 wire [4:0] 						lsu_op_rd;
 wire [63:0] 					lsu_op_rd_value;
 wire [1:0] 						lsu_op_rd_type;
@@ -229,39 +229,45 @@ wire [0:0] 						lsu_op_endsim;
 wire [0:0] 						lsu_op_auipc;
 wire [63:0] 					lsu_op_pc;
 wire [31:0] 					lsu_op_inst;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_op_sid;
+wire [`SCOREBOARD_SIZE_WIDTH:0] lsu_op_sid;
 
 wire [0:0] 	alu0_exe_valid;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] alu0_exe_sid;
+wire [`SCOREBOARD_SIZE_WIDTH:0] alu0_exe_sid;
 wire [4:0] 	alu0_exe_rd;
 wire [63:0] alu0_exe_rd_value;
+wire [31:0] alu0_exe_inst;
 wire [0:0] 	alu1_exe_valid;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] alu1_exe_sid;
+wire [`SCOREBOARD_SIZE_WIDTH:0] alu1_exe_sid;
 wire [4:0] 	alu1_exe_rd;
 wire [63:0] alu1_exe_rd_value;
+wire [31:0] alu1_exe_inst;
 wire [0:0] 	beu_exe_valid;
 wire [4:0] 	beu_exe_rd;
 wire [63:0] beu_exe_rd_value;
+wire [31:0] beu_exe_inst;
 wire [0:0] 	beu_exe_redirect;
 wire [63:0] beu_exe_redirect_pc;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] beu_exe_sid;
+wire [`SCOREBOARD_SIZE_WIDTH:0] beu_exe_sid;
 wire [0:0] 	lsu_exe_valid;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] lsu_exe_sid;
+wire [`SCOREBOARD_SIZE_WIDTH:0] lsu_exe_sid;
 wire [4:0] 	lsu_exe_rd;
 wire [63:0] lsu_exe_rd_value;
+wire [31:0] lsu_exe_inst;
 
 wire [0:0] 	exe_inst0_valid;
 wire [63:0] exe_inst0_rd_value;
 wire [4:0] 	exe_inst0_rd;
 wire [0:0] 	exe_inst0_redirect;
 wire [63:0] exe_inst0_redirect_pc;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] exe_inst0_sid;
+wire [31:0] exe_inst0_inst;
+wire [`SCOREBOARD_SIZE_WIDTH:0] exe_inst0_sid;
 wire [0:0] 	exe_inst1_valid;
 wire [63:0] exe_inst1_rd_value;
 wire [4:0] 	exe_inst1_rd;
 wire [0:0] 	exe_inst1_redirect;
 wire [63:0] exe_inst1_redirect_pc;
-wire [`SCOREBOARD_SIZE_WIDTH-1:0] exe_inst1_sid;
+wire [31:0] exe_inst1_inst;
+wire [`SCOREBOARD_SIZE_WIDTH:0] exe_inst1_sid;
 
 wire [0:0] 	lsu_uncache_mem_vld;
 wire [0:0] 	lsu_uncache_mem_ready;
@@ -278,16 +284,17 @@ wire [63:0] lsu_uncache_mem_resp_data;
 wire [0:0] 	wb_inst0_valid;
 wire [`SCOREBOARD_SIZE_WIDTH:0] wb_inst0_sid;
 wire [63:0] wb_inst0_rd_value;
+wire [31:0] wb_inst0_inst;
 wire [4:0] 	wb_inst0_rd;
-wire [0:0] 	wb_inst0_redirect;
-wire [63:0] wb_inst0_redirect_pc;
 
 wire [0:0] 	wb_inst1_valid;
 wire [`SCOREBOARD_SIZE_WIDTH:0] wb_inst1_sid;
 wire [63:0] wb_inst1_rd_value;
+wire [31:0] wb_inst1_inst;
 wire [4:0] 	wb_inst1_rd;
-wire [0:0] 	wb_inst1_redirect;
-wire [63:0] wb_inst1_redirect_pc;
+
+wire [0:0] wb_redirect;
+wire [63:0] wb_redirect_pc;
 
 assign reset_vec = 64'h0;
 
@@ -336,7 +343,7 @@ BIU u_IBIU (
     .cache_req_rdy_o(icache_miss_ready),
     .cache_req_rd_i(1'b1),
     .cache_req_addr_i(icache_miss_addr),
-    .cache_req_wdata_i('b0),
+    .cache_req_wdata_i(512'b0),
     // cache resp
     .cache_resp_vld_o(refill_icache_valid),
     .cache_resp_rdy_i(refill_icache_ready),
@@ -345,9 +352,9 @@ BIU u_IBIU (
     // uncache req
     .uncache_req_vld_i(1'b0),
     .uncache_req_rdy_o(),
-    .uncache_req_rd_i('b0),
-    .uncache_req_addr_i('b0),
-    .uncache_req_wdata_i('b0),
+    .uncache_req_rd_i(1'b0),
+    .uncache_req_addr_i(64'b0),
+    .uncache_req_wdata_i(64'b0),
     // uncache resp
     .uncache_resp_vld_o(),
     .uncache_resp_rdy_i(1'b0),
@@ -372,8 +379,7 @@ BIU u_IBIU (
 	.rvalid_i(ibiu_axi_rvalid),
 	.rready_o(ibiu_axi_rready),
 	.rdata_i(ibiu_axi_rdata),
-	.rresp_i(ibiu_axi_rresp),
-	.rlast_i(ibiu_axi_rlast)
+	.rresp_i(ibiu_axi_rresp)
 );
 
 InstQueue u_InstQueue (
@@ -503,6 +509,7 @@ Operands u_Operands (
 	.inst0_operands_rs3_value_o    (inst0_operands_rs3_value),
 	.inst0_operands_rd_type_o      (inst0_operands_rd_type),
 	.inst0_operands_rd_o           (inst0_operands_rd),
+	.inst0_operands_rd_value_o     (inst0_operands_rd_value),
 	.inst0_operands_h_exe_unit_o   (inst0_operands_h_exe_unit),
 	.inst0_operands_func_code_o    (inst0_operands_func_code),
 	.inst0_operands_func3_o        (inst0_operands_func3),
@@ -522,6 +529,7 @@ Operands u_Operands (
 	.inst1_operands_rs3_value_o    (inst1_operands_rs3_value),
 	.inst1_operands_rd_type_o      (inst1_operands_rd_type),
 	.inst1_operands_rd_o           (inst1_operands_rd),
+	.inst1_operands_rd_value_o     (inst1_operands_rd_value),
 	.inst1_operands_h_exe_unit_o   (inst1_operands_h_exe_unit),
 	.inst1_operands_func_code_o    (inst1_operands_func_code),
 	.inst1_operands_func3_o        (inst1_operands_func3),
@@ -539,8 +547,6 @@ Operands u_Operands (
 );
 
 Op_exe_sequencer u_Op_exe_sequencer (
-    .clk                        (clk),
-    .rst_n                      (rst_n),
     .inst0_operands_valid_i     (inst0_operands_valid),
     .inst0_operands_inst_i      (inst0_operands_inst),
     .inst0_operands_rs1_valid_i (inst0_operands_rs1_valid),
@@ -592,7 +598,6 @@ Op_exe_sequencer u_Op_exe_sequencer (
     .exe_alu0_rs3_valid_o      (alu0_op_rs3_valid),
     .exe_alu0_rs3_value_o      (alu0_op_rs3_value),
     .exe_alu0_rs3_o            (alu0_op_rs3),
-    .exe_alu0_rd_valid_o       (alu0_op_rd_valid),
     .exe_alu0_rd_o             (alu0_op_rd),
     .exe_alu0_rd_type_o        (alu0_op_rd_type),
     .exe_alu0_rd_func_code_o   (alu0_op_func_code),
@@ -612,7 +617,6 @@ Op_exe_sequencer u_Op_exe_sequencer (
     .exe_alu1_rs3_valid_o      (alu1_op_rs3_valid),
     .exe_alu1_rs3_value_o      (alu1_op_rs3_value),
     .exe_alu1_rs3_o            (alu1_op_rs3),
-    .exe_alu1_rd_valid_o       (alu1_op_rd_valid),
     .exe_alu1_rd_o             (alu1_op_rd),
     .exe_alu1_rd_type_o        (alu1_op_rd_type),
     .exe_alu1_rd_func_code_o   (alu1_op_func_code),
@@ -632,7 +636,6 @@ Op_exe_sequencer u_Op_exe_sequencer (
     .exe_beu_rs3_valid_o       (beu_op_rs3_valid),
     .exe_beu_rs3_value_o       (beu_op_rs3_value),
     .exe_beu_rs3_o             (beu_op_rs3),
-    .exe_beu_rd_valid_o        (beu_op_rd_valid),
     .exe_beu_rd_o              (beu_op_rd),
     .exe_beu_rd_type_o         (beu_op_rd_type),
     .exe_beu_rd_func_code_o    (beu_op_func_code),
@@ -652,7 +655,6 @@ Op_exe_sequencer u_Op_exe_sequencer (
     .exe_lsu_rs3_valid_o       (lsu_op_rs3_valid),
     .exe_lsu_rs3_value_o       (lsu_op_rs3_value),
     .exe_lsu_rs3_o             (lsu_op_rs3),
-    .exe_lsu_rd_valid_o        (lsu_op_rd_valid),
     .exe_lsu_rd_o              (lsu_op_rd),
     .exe_lsu_rd_type_o         (lsu_op_rd_type),
     .exe_lsu_rd_func_code_o    (lsu_op_func_code),
@@ -767,9 +769,9 @@ BIU u_DBIU (
     // cache req
     .cache_req_vld_i         (1'b0),
     .cache_req_rdy_o         (),
-    .cache_req_rd_i          ('b0),
-    .cache_req_addr_i        ('b0),
-    .cache_req_wdata_i       ('b0),
+    .cache_req_rd_i          (1'b0),
+    .cache_req_addr_i        (64'b0),
+    .cache_req_wdata_i       (512'b0),
     // cache resp
     .cache_resp_vld_o        (),
     .cache_resp_rdy_i        (1'b0),
@@ -778,7 +780,7 @@ BIU u_DBIU (
     // uncache req
     .uncache_req_vld_i       (lsu_uncache_mem_vld),
     .uncache_req_rdy_o       (lsu_uncache_mem_ready),
-    .uncache_req_rd_i        (lsu_uncache_mem_write),
+    .uncache_req_rd_i        (~lsu_uncache_mem_write),
     .uncache_req_addr_i      (lsu_uncache_mem_addr),
     .uncache_req_wdata_i     (lsu_uncache_mem_wdata),
     // uncache resp
@@ -815,21 +817,27 @@ Exe_wb_sequencer u_Exe_wb_sequencer (
 	.alu0_exe_rd_value_i       (alu0_exe_rd_value),
 	.alu0_exe_rd_i             (alu0_exe_rd),
 	.alu0_exe_sid_i            (alu0_exe_sid),
+	.alu0_exe_inst_i           (alu0_exe_inst),
 	.alu1_exe_valid_i          (alu1_exe_valid),
 	.alu1_exe_stall_i          (alu1_exe_stall),
 	.alu1_exe_rd_value_i       (alu1_exe_rd_value),
 	.alu1_exe_rd_i             (alu1_exe_rd),
 	.alu1_exe_sid_i            (alu1_exe_sid),
+	.alu1_exe_inst_i           (alu1_exe_inst),
 	.beu_exe_valid_i           (beu_exe_valid),
 	.beu_exe_stall_i           (beu_exe_stall),
 	.beu_exe_rd_value_i        (beu_exe_rd_value),
 	.beu_exe_rd_i              (beu_exe_rd),
+	.beu_exe_redirect_i        (beu_exe_redirect),
+	.beu_exe_redirect_pc_i     (beu_exe_redirect_pc),
 	.beu_exe_sid_i             (beu_exe_sid),
+	.beu_exe_inst_i            (beu_exe_inst),
 	.lsu_exe_valid_i           (lsu_exe_valid),
 	.lsu_exe_stall_i           (lsu_exe_stall),
 	.lsu_exe_rd_value_i        (lsu_exe_rd_value),
 	.lsu_exe_rd_i              (lsu_exe_rd),
 	.lsu_exe_sid_i             (lsu_exe_sid),
+	.lsu_exe_inst_i            (lsu_exe_inst),
 	// to wb
 	.wb_inst0_valid_o          (exe_inst0_valid),
 	.wb_inst0_data_o           (exe_inst0_rd_value),
@@ -837,12 +845,14 @@ Exe_wb_sequencer u_Exe_wb_sequencer (
 	.wb_inst0_redirect_o       (exe_inst0_redirect),
 	.wb_inst0_redirect_pc_o    (exe_inst0_redirect_pc),
 	.wb_inst0_sid_o            (exe_inst0_sid),
+	.wb_inst0_inst_o           (exe_inst0_inst),
 	.wb_inst1_valid_o          (exe_inst1_valid),
 	.wb_inst1_data_o           (exe_inst1_rd_value),
 	.wb_inst1_rd_o             (exe_inst1_rd),
 	.wb_inst1_redirect_o       (exe_inst1_redirect),
 	.wb_inst1_redirect_pc_o    (exe_inst1_redirect_pc),
-	.wb_inst1_sid_o            (exe_inst1_sid)
+	.wb_inst1_sid_o            (exe_inst1_sid),
+	.wb_inst1_inst_o           (exe_inst1_inst)
 );
 
 WriteBack u_WriteBack (
@@ -852,25 +862,27 @@ WriteBack u_WriteBack (
     .inst0_wb_valid_i          (exe_inst0_valid),
     .inst0_wb_rd_i             (exe_inst0_rd),
     .inst0_wb_value_i          (exe_inst0_rd_value), 
-    .inst0_wb_pc_i             (exe_inst0_pc),
+    .inst0_wb_inst_i           (exe_inst0_inst),
     .inst0_wb_redirect_i       (exe_inst0_redirect),
     .inst0_wb_redirect_pc_i    (exe_inst0_redirect_pc),
+	.inst0_wb_sid_i            (exe_inst0_sid),
     .inst1_wb_valid_i          (exe_inst1_valid),
     .inst1_wb_rd_i             (exe_inst1_rd),
     .inst1_wb_value_i          (exe_inst1_rd_value),
-    .inst1_wb_pc_i             (exe_inst1_pc),
+    .inst1_wb_inst_i           (exe_inst1_inst),
     .inst1_wb_redirect_i       (exe_inst1_redirect),
     .inst1_wb_redirect_pc_i    (exe_inst1_redirect_pc),
+	.inst1_wb_sid_i            (exe_inst1_sid),
     // to wb
     .inst0_wb_valid_o          (wb_inst0_valid),
     .inst0_wb_rd_o             (wb_inst0_rd),
     .inst0_wb_value_o          (wb_inst0_rd_value),
-    .inst0_wb_pc_o             (wb_inst0_pc),
+    .inst0_wb_inst_o           (wb_inst0_inst),
     .inst0_wb_sid_o            (wb_inst0_sid),
     .inst1_wb_valid_o          (wb_inst1_valid),
     .inst1_wb_rd_o             (wb_inst1_rd),
     .inst1_wb_value_o          (wb_inst1_rd_value),
-    .inst1_wb_pc_o             (wb_inst1_pc),
+    .inst1_wb_inst_o           (wb_inst1_inst),
     .inst1_wb_sid_o            (wb_inst1_sid),
     .wb_redirect_o             (wb_redirect),
     .wb_redirect_pc_o          (wb_redirect_pc)
