@@ -4,6 +4,7 @@ module Icache(
     // from Fetch0
     input   [0:0]     f0_valid_i,
     input   [63:0]    f0_pc_i,
+    output  [0:0]     stall_f0_o,
     // inst to instQueue
     output  [0:0]     icache_valid_o, 
     output  [63:0]    icache_pc_o,
@@ -100,20 +101,20 @@ always @(*) begin
     case(state)
         IDLE: begin
             if(f0_valid_i && !stall_icache_i && !squash_pipe_i) begin
-                next_state <= TAG;
+                next_state = TAG;
             end
         end
         TAG: begin
             if(!hit && icache_miss_ready_i) begin
-                next_state <= MISS;
+                next_state = MISS;
             end
             else if(squash_pipe_i || hit && !f0_valid_i) begin
-                next_state <= IDLE;
+                next_state = IDLE;
             end
         end
         MISS: begin
             if(hit_refill) begin
-                next_state <= TAG;
+                next_state = TAG;
             end
         end
     endcase
@@ -177,6 +178,9 @@ assign icache_pc_o = {fetch_tag_r, fetch_idx_r, fetch_offset_r};
 assign icache_data_o = {LINE_SIZE{hit}}        & hit_data |
                        {LINE_SIZE{hit_refill}} & refill_icache_data_r;
 
+// stall f0
+assign stall_f0_o = (state == TAG && ~hit) || state == MISS;
+
 // icache miss output gen
 assign icache_miss_valid_o = state == TAG && ~hit && ~hit_refill;
 assign icache_miss_addr_o = {fetch_tag_r, fetch_idx_r, fetch_offset_r};
@@ -194,7 +198,7 @@ end
 
 assign refill_icache_ready_o = 1'b1;
 
-assign refill_vld = refill_icache_valid_i && state == MISS;
+assign refill_vld = refill_icache_valid_r && state == MISS;
 
 assign hit_refill = refill_icache_valid_r && outstanding_cnt == 1;
 

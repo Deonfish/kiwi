@@ -53,19 +53,24 @@ always @(posedge clk or negedge rst_n) begin
         wb_redirect_r <= 0;
         wb_redirect_pc_r <= 0;
     end
-    else begin
-        inst0_wb_valid_r <= inst0_wb_valid_i;
+    else if(inst0_wb_valid_i || inst1_wb_valid_i) begin
+        inst0_wb_valid_r <= 1'b1;
         inst0_wb_rd_r    <= inst0_wb_rd_i;
         inst0_wb_value_r <= inst0_wb_value_i;
         inst0_wb_inst_r  <= inst0_wb_inst_i;
         inst0_wb_sid_r   <= inst0_wb_sid_i;
-        inst1_wb_valid_r <= inst1_wb_valid_i;
+        inst1_wb_valid_r <= 1'b1;
         inst1_wb_rd_r    <= inst1_wb_rd_i;
         inst1_wb_value_r <= inst1_wb_value_i;
         inst1_wb_inst_r  <= inst1_wb_inst_i;
         inst1_wb_sid_r   <= inst1_wb_sid_i;
         wb_redirect_r    <= wb_redirect;
         wb_redirect_pc_r <= wb_redirect_pc;
+    end
+    else begin
+        inst0_wb_valid_r <= 1'b0;
+        inst1_wb_valid_r <= 1'b0;
+        wb_redirect_r <= 1'b0;
     end
 end
 
@@ -82,5 +87,9 @@ assign inst1_wb_sid_o = inst1_wb_sid_r;
 
 assign wb_redirect = inst0_wb_redirect_i || inst1_wb_redirect_i;
 assign wb_redirect_pc = inst0_wb_redirect_i ? inst0_wb_redirect_pc_i : inst1_wb_redirect_pc_i;
+
+assign wb_redirect_o = 1'b0;
+// assign wb_redirect_o = wb_redirect_r;
+assign wb_redirect_pc_o = wb_redirect_pc_r;
 
 endmodule

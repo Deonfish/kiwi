@@ -101,10 +101,10 @@ wire [1:0] inst1_decoder_func2;
 wire [0:0] inst1_decoder_endsim;
 wire [0:0] inst1_decoder_auipc;
 
-assign inst0_decoder_valid_o = inst0_decoder_valid_r & !(stall_decoder_inst0_i | flush_decoder_i);
+assign inst0_decoder_valid_o = inst0_decoder_valid_r;
 assign inst0_decoder_pc_o = inst0_decoder_pc_r;
 assign inst0_decoder_inst_o = inst0_decoder_inst_r;
-assign inst1_decoder_valid_o = inst1_decoder_valid_r & !(stall_decoder_inst1_i | flush_decoder_i);
+assign inst1_decoder_valid_o = inst1_decoder_valid_r;
 assign inst1_decoder_pc_o = inst1_decoder_pc_r;
 assign inst1_decoder_inst_o = inst1_decoder_inst_r;
 

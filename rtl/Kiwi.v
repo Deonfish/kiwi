@@ -46,6 +46,7 @@ module Kiwi(
 wire [63:0] f0_pc;
 wire f0_valid;
 wire [63:0] reset_vec;
+wire stall_f0;
 wire [0:0] icache_valid;
 wire [63:0] icache_pc;
 wire [511:0] icache_data;
@@ -303,10 +304,10 @@ Fetch0 u_Fetch0 (
 	.rst_n(rst_n),
 	.reset_vec(reset_vec),
     // flush from wb
-	.redir_i(wb_redirect),
+	.redir_i(1'b0),
 	.redir_pc_i(wb_redirect_pc),
     // stall from instQueue
-	.stall_f0_i(instq_full),
+	.stall_f0_i(instq_full || stall_f0),
     // to Icache
 	.f0_valid_o(f0_valid),
 	.f0_pc_o(f0_pc)
@@ -318,6 +319,7 @@ Icache u_Icache (
     // from Fetch0
 	.f0_valid_i(f0_valid),
 	.f0_pc_i(f0_pc),
+	.stall_f0_o(stall_f0),
     // inst to instQueue
 	.icache_valid_o(icache_valid),
 	.icache_pc_o(icache_pc),
@@ -332,7 +334,7 @@ Icache u_Icache (
     // stall from instQueue
 	.stall_icache_i(instq_full),
     // squash from backend
-	.squash_pipe_i(wb_redirect)
+	.squash_pipe_i(1'b0)
 );
 
 BIU u_IBIU (

@@ -106,7 +106,7 @@ assign rptr_val = rptr[DEPTH_WIDTH-1:0];
 assign rptr_val_add1 = rptr_val + 1;
 
 // full
-assign instq_full_o = wptr_hi!=rptr_hi ? wptr_val - rptr_val < WRITE_WIDTH : rptr_val - wptr_val < READ_WIDTH;
+assign instq_full_o = wptr_hi!=rptr_hi && wptr_val == rptr_val;
 
 // instQueue
 always @(posedge clk) begin

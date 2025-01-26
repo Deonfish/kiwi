@@ -54,6 +54,7 @@ localparam  ST_IDLE         = 3'd0,
 reg [2:0]  cur_state, next_state;
 
 reg [2:0]  beat_count;  // cache request beat count
+reg [2:0]  read_buf_cnt;  // read buffer count
 
 reg [63:0] req_addr;
 reg [511:0] req_wdata;
@@ -107,7 +108,8 @@ always @(*) begin
 
         ST_WAIT_RESP: begin
             if(req_is_cache) begin
-                if(beat_count == 3'd7 && rvalid_i) begin
+                if((req_is_read && read_buf_cnt == 3'd7) ||
+                   (!req_is_read && beat_count == 3'd7)) begin
                     next_state = ST_RESP;
                 end
                 else begin
@@ -155,6 +157,9 @@ always @(posedge clk or negedge rst_n) begin
         uncache_req_rdy_o  <= 1'b0;
         cache_resp_vld_o   <= 1'b0;
         uncache_resp_vld_o <= 1'b0;
+        arvalid_o          <= 1'b0;
+        awvalid_o          <= 1'b0;
+        wvalid_o           <= 1'b0;
 
         case (cur_state)
             ST_IDLE: begin
@@ -200,12 +205,6 @@ always @(posedge clk or negedge rst_n) begin
             end
 
             ST_WAIT_RESP: begin
-                if (rvalid_i) begin
-                    read_data_accum[(beat_count*64) +: 64] <= rdata_i;
-                    if (req_is_cache) begin
-                        beat_count <= beat_count + 1'b1;
-                    end
-                end
             end
 
             ST_RESP: begin
@@ -220,6 +219,24 @@ always @(posedge clk or negedge rst_n) begin
 
             default: ;
         endcase
+    end
+end
+
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        read_buf_cnt <= 3'd0;
+    end
+    else if(req_is_cache && rvalid_i) begin
+        read_buf_cnt <= read_buf_cnt + 1'b1;
+    end
+end
+
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        read_data_accum <= 512'b0;
+    end
+    else if(req_is_cache && rvalid_i) begin
+        read_data_accum[(read_buf_cnt*64) +: 64] <= rdata_i;
     end
 end
 
