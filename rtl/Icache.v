@@ -44,6 +44,7 @@ reg                    fetch_vld_r;
 reg [TAG_WIDTH-1:0]    fetch_tag_r;
 reg [IDX_WIDTH-1:0]    fetch_idx_r;
 reg [OFFSET_WIDTH-1:0] fetch_offset_r;
+reg                    hit_refill_r;
 
 reg [1:0] state;
 reg [1:0] next_state;
@@ -66,7 +67,7 @@ wire hit_refill;
 
 reg[15:0] outstanding_cnt;
 
-assign f0_hsk = f0_valid_i & !stall_icache_i && state!=MISS && !squash_pipe_i;
+assign f0_hsk = f0_valid_i & !stall_icache_i && state!=MISS && next_state!=MISS && !squash_pipe_i;
 
 assign f0_tag    = f0_pc_i[OFFSET_WIDTH+IDX_WIDTH +: TAG_WIDTH];
 assign f0_idx    = f0_pc_i[OFFSET_WIDTH +: IDX_WIDTH];
@@ -79,11 +80,14 @@ always @(posedge clk or negedge rst_n) begin
     else if(squash_pipe_i) begin
         fetch_vld_r <= 1'b0;
     end
-    else if(!stall_icache_i && state!=MISS) begin
-        fetch_vld_r    <= f0_valid_i;
+    else if(f0_hsk) begin
+        fetch_vld_r    <= 1'b1;
         fetch_tag_r    <= f0_tag;
         fetch_idx_r    <= f0_idx;
         fetch_offset_r <= f0_offset;
+    end
+    else if(icache_valid_o && !stall_icache_i) begin
+        fetch_vld_r    <= 1'b0;
     end
 end
 
@@ -173,10 +177,10 @@ assign hit_data = {LINE_SIZE{hit_way[0]}} & tag_pipe_data[0] |
 assign hit = |hit_way;
 
 // icache hit output gen
-assign icache_valid_o = state == TAG && (hit || hit_refill);
+assign icache_valid_o = state == TAG && (hit || hit_refill_r);
 assign icache_pc_o = {fetch_tag_r, fetch_idx_r, fetch_offset_r};
 assign icache_data_o = {LINE_SIZE{hit}}        & hit_data |
-                       {LINE_SIZE{hit_refill}} & refill_icache_data_r;
+                       {LINE_SIZE{hit_refill_r}} & refill_icache_data_r;
 
 // stall f0
 assign stall_f0_o = (state == TAG && ~hit) || state == MISS;
@@ -190,10 +194,19 @@ always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         refill_icache_valid_r <= 1'b0;
     end
-    else begin
-        refill_icache_valid_r <= refill_icache_valid_i;
+    else if(refill_icache_valid_i) begin
+        refill_icache_valid_r <= 1'b1;
         refill_icache_data_r <= refill_icache_data_i;
     end
+    else
+        refill_icache_valid_r <= 1'b0;
+end
+
+always @(posedge clk or negedge rst_n) begin
+    if(!rst_n)
+        hit_refill_r <= 1'b0;
+    else
+        hit_refill_r <= hit_refill;
 end
 
 assign refill_icache_ready_o = 1'b1;
@@ -230,8 +243,8 @@ sram_model #(
 	.ADDRWIDTH(SET_WIDTH))
 tag_array0 (
 	.CLK		(clk),
-	.CEN		(f0_hsk || refill_way0),
-	.WEN		(refill_way0),
+	.CEN		(~(f0_hsk || refill_way0)),
+	.WEN		(~refill_way0),
 	.D			(fetch_tag_r),
 	.A			(f0_idx),
 	.Q			(tag_pipe_tag[0])
@@ -242,8 +255,8 @@ sram_model #(
 	.ADDRWIDTH(SET_WIDTH))
 tag_array1 (
 	.CLK		(clk),
-	.CEN		(f0_hsk || refill_way1),
-	.WEN		(refill_way1),
+	.CEN		(~(f0_hsk || refill_way1)),
+	.WEN		(~refill_way1),
 	.D			(fetch_tag_r),
 	.A			(f0_idx),
 	.Q			(tag_pipe_tag[1])
@@ -254,8 +267,8 @@ sram_model #(
 	.ADDRWIDTH(SET_WIDTH))
 data_array0 (
 	.CLK		(clk),
-	.CEN		(f0_hsk || refill_way0),
-	.WEN		(refill_way0),
+	.CEN		(~(f0_hsk || refill_way0)),
+	.WEN		(~refill_way0),
 	.D			(refill_icache_data_i),
 	.A			(f0_idx),
 	.Q			(tag_pipe_data[0])
@@ -266,8 +279,8 @@ sram_model #(
 	.ADDRWIDTH(SET_WIDTH))
 data_array1 (
 	.CLK		(clk),
-	.CEN		(f0_hsk || refill_way1),
-	.WEN		(refill_way1),
+	.CEN		(~(f0_hsk || refill_way1)),
+	.WEN		(~refill_way1),
 	.D			(refill_icache_data_i),
 	.A			(f0_idx),
 	.Q			(tag_pipe_data[1])

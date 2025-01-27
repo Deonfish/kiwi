@@ -62,9 +62,11 @@ wire [31:0] iq0_inst;
 wire [0:0] iq1_vld;
 wire [63:0] iq1_pc;
 wire [31:0] iq1_inst;
+wire [0:0] inst0_decoder_valid_pre;
 wire [0:0] inst0_decoder_valid;
 wire [63:0] inst0_decoder_pc;
 wire [31:0] inst0_decoder_inst;
+wire [0:0] inst1_decoder_valid_pre;
 wire [0:0] inst1_decoder_valid;
 wire [63:0] inst1_decoder_pc;
 wire [31:0] inst1_decoder_inst;
@@ -421,6 +423,7 @@ Decoder u_Decoder (
 	.inst1_f1_pc_i(iq1_pc),
 	.inst1_f1_inst_i(iq1_inst),
     // to operands
+	.inst0_decoder_valid_pre_o  (inst0_decoder_valid_pre),
 	.inst0_decoder_valid_o      (inst0_decoder_valid),
 	.inst0_decoder_pc_o         (inst0_decoder_pc),
 	.inst0_decoder_inst_o       (inst0_decoder_inst),
@@ -438,6 +441,7 @@ Decoder u_Decoder (
     .inst0_decoder_func2_o      (inst0_decoder_func2),
     .inst0_decoder_endsim_o     (inst0_decoder_endsim),
     .inst0_decoder_auipc_o      (inst0_decoder_auipc),
+    .inst1_decoder_valid_pre_o  (inst1_decoder_valid_pre),
     .inst1_decoder_valid_o      (inst1_decoder_valid),
     .inst1_decoder_pc_o         (inst1_decoder_pc),
     .inst1_decoder_inst_o       (inst1_decoder_inst),
@@ -727,6 +731,7 @@ BEU u_BEU (
     .rs2_value_i            (beu_op_rs2_value),
     .func_code_i            (beu_op_func_code),
     // beu result
+    .branch_valid_o         (beu_exe_valid),
     .branch_redirect_o      (beu_exe_redirect),
     .branch_redirect_pc_o   (beu_exe_redirect_pc),
     .branch_sid_o           (beu_exe_sid)
@@ -876,6 +881,8 @@ WriteBack u_WriteBack (
     .inst1_wb_redirect_pc_i    (exe_inst1_redirect_pc),
 	.inst1_wb_sid_i            (exe_inst1_sid),
     // to wb
+    .stall_inst0_wb_i          (wb_stall_inst0),
+    .stall_inst1_wb_i          (wb_stall_inst1),
     .inst0_wb_valid_o          (wb_inst0_valid),
     .inst0_wb_rd_o             (wb_inst0_rd),
     .inst0_wb_value_o          (wb_inst0_rd_value),
@@ -894,12 +901,12 @@ Scoreboard u_Scoreboard (
     .clk                        (clk),
     .rst_n                      (rst_n),
     // from decoder
-    .decoder_inst0_vld_i        (inst0_decoder_valid),
+    .decoder_inst0_vld_i        (inst0_decoder_valid_pre),
     .decoder_inst0_exe_unit_i   (inst0_decoder_exe_unit),
     .decoder_inst0_rd_i         (inst0_decoder_rd),
     .decoder_inst0_rs1_i        (inst0_decoder_rs1),
     .decoder_inst0_rs2_i        (inst0_decoder_rs2),
-    .decoder_inst1_vld_i        (inst1_decoder_valid),
+    .decoder_inst1_vld_i        (inst1_decoder_valid_pre),
     .decoder_inst1_exe_unit_i   (inst1_decoder_exe_unit),
     .decoder_inst1_rd_i         (inst1_decoder_rd),
     .decoder_inst1_rs1_i        (inst1_decoder_rs1),

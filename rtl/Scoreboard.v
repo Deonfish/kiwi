@@ -101,6 +101,7 @@ module Scoreboard(
     wire inst1_wr_lsu;
     wire inst0_wr_scb;
     wire inst1_wr_scb;
+    wire inst1_waw_inst0;
 
     // ----------------- decoder -----------------
 
@@ -119,10 +120,10 @@ module Scoreboard(
     assign inst0_wr_beu  = inst0_sel_beu  && !scb_beu_busy_r  && !inst0_waw;
     assign inst0_wr_lsu  = inst0_sel_lsu  && !scb_lsu_busy_r  && !inst0_waw;
 
-    assign inst1_sel_alu0 = decoder_inst1_vld_i && decoder_inst1_exe_unit_i == `RV_ALU;
-    assign inst1_sel_alu1 = decoder_inst1_vld_i && decoder_inst1_exe_unit_i == `RV_ALU;
-    assign inst1_sel_beu  = decoder_inst1_vld_i && decoder_inst1_exe_unit_i == `RV_BEU;
-    assign inst1_sel_lsu  = decoder_inst1_vld_i && decoder_inst1_exe_unit_i == `RV_LSU;
+    assign inst1_sel_alu0 = decoder_inst1_vld_i && decoder_inst1_exe_unit_i[`RV_ALU];
+    assign inst1_sel_alu1 = decoder_inst1_vld_i && decoder_inst1_exe_unit_i[`RV_ALU];
+    assign inst1_sel_beu  = decoder_inst1_vld_i && decoder_inst1_exe_unit_i[`RV_BEU];
+    assign inst1_sel_lsu  = decoder_inst1_vld_i && decoder_inst1_exe_unit_i[`RV_LSU];
 
     assign inst1_waw = (scb_alu0_busy_r && scb_alu0_rd_r == decoder_inst1_rd_i) ||
                        (scb_alu1_busy_r && scb_alu1_rd_r == decoder_inst1_rd_i) ||
@@ -134,6 +135,8 @@ module Scoreboard(
     assign inst1_wr_beu  = inst1_sel_beu  && !scb_beu_busy_r  && !inst1_waw && !inst0_wr_beu;
     assign inst1_wr_lsu  = inst1_sel_lsu  && !scb_lsu_busy_r  && !inst1_waw && !inst0_wr_lsu;
 
+    assign inst1_waw_inst0 = decoder_inst0_vld_i && decoder_inst1_vld_i && decoder_inst0_rd_i == decoder_inst1_rd_i;
+
     assign cur_sid_add1 = cur_sid_r + 1;
     assign inst0_sid = cur_sid_r;
     assign inst1_sid = cur_sid_add1;
@@ -141,8 +144,8 @@ module Scoreboard(
     assign inst0_wr_scb = inst0_wr_alu0 || inst0_wr_alu1 || inst0_wr_beu || inst0_wr_lsu;
     assign inst1_wr_scb = inst1_wr_alu0 || inst1_wr_alu1 || inst1_wr_beu || inst1_wr_lsu;
 
-    assign stall_decoder_inst0_o = inst0_wr_scb || op_stall_inst0_o;
-    assign stall_decoder_inst1_o = inst1_wr_scb || op_stall_inst1_o || stall_decoder_inst0_o;
+    assign stall_decoder_inst0_o = decoder_inst0_vld_i && (!inst0_wr_scb || op_stall_inst0_o);
+    assign stall_decoder_inst1_o = decoder_inst1_vld_i && (!inst1_wr_scb || inst1_waw_inst0 || op_stall_inst1_o || stall_decoder_inst0_o);
 
     assign decoder_inst0_sid_o = inst0_sid;
     assign decoder_inst1_sid_o = inst1_sid;
@@ -240,6 +243,11 @@ module Scoreboard(
     assign op_stall_inst1_o = op_inst1_raw;
 
     // ----------------- execute -----------------
+
+    assign alu0_exe_stall_o = 1'b0;
+    assign alu1_exe_stall_o = 1'b0;
+    assign beu_exe_stall_o  = 1'b0;
+    assign lsu_exe_stall_o  = 1'b0;
 
     // ----------------- write back -----------------
 

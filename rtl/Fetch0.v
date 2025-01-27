@@ -31,7 +31,7 @@ always @(posedge clk or negedge rst_n) begin
 	else if(redir_i)
 		pc_r <= redir_pc_i;
 	else if(!stall_f0_i)
-		pc_r <= pc + 4;
+		pc_r <= pc + (1<<6); // cacheline
 end
 
 assign f0_valid_o = ~stall_f0_i;

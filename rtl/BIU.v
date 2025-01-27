@@ -126,7 +126,7 @@ always @(*) begin
         end
 
         ST_RESP: begin
-            if(req_is_cache && cache_resp_vld_o || !req_is_cache && uncache_resp_rdy_i) begin
+            if(1) begin
                 next_state = ST_IDLE;
             end
             else begin

@@ -13,6 +13,7 @@ module BEU (
 	input [63:0]  rs2_value_i,
 	input [3:0]   func_code_i, 
 
+	output		  branch_valid_o,
 	output 		  branch_redirect_o,
 	output [63:0] branch_redirect_pc_o,
 	output [`SCOREBOARD_SIZE_WIDTH:0] branch_sid_o
@@ -113,6 +114,7 @@ assign b_taken = (beq && (branch_rs1_value_r == branch_rs2_value_r)) ||
 assign redirect = branch_valid_r & (jal | jalr | b_taken);
 assign redirect_pc = jal ? jal_target_pc : jalr ? jalr_target_pc : b_target_pc;
 
+assign branch_valid_o = branch_valid_r;
 assign branch_redirect_o = redirect;
 assign branch_redirect_pc_o = redirect_pc;
 assign branch_sid_o = branch_sid_i;
