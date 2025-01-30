@@ -26,6 +26,7 @@ parameter READ_WIDTH = 2;
 
 reg [31:0] inst_queue [DEPTH-1:0];
 reg [DEPTH-1:0] valid_queue;
+reg [63:0] pc_queue[DEPTH-1:0];
 reg [63:0] pc_r;
 
 reg [DEPTH_WIDTH:0]    wptr;
@@ -51,6 +52,23 @@ wire                   rptr_hi;
 wire [DEPTH_WIDTH-1:0] rptr_val;
 wire [DEPTH_WIDTH-1:0] rptr_val_add1;
 
+wire [63:0] winst_pc0;
+wire [63:0] winst_pc1;
+wire [63:0] winst_pc2;
+wire [63:0] winst_pc3;
+wire [63:0] winst_pc4;
+wire [63:0] winst_pc5;
+wire [63:0] winst_pc6;
+wire [63:0] winst_pc7;
+wire [63:0] winst_pc8;
+wire [63:0] winst_pc9;
+wire [63:0] winst_pc10;
+wire [63:0] winst_pc11;
+wire [63:0] winst_pc12;
+wire [63:0] winst_pc13;
+wire [63:0] winst_pc14;
+wire [63:0] winst_pc15;
+
 wire [31:0] winst0;
 wire [31:0] winst1;
 wire [31:0] winst2;
@@ -69,6 +87,7 @@ wire [31:0] winst14;
 wire [31:0] winst15;
 
 wire [31:0] winstq_data[DEPTH-1:0];
+wire [63:0] winstq_pc[DEPTH-1:0];
 
 wire [DEPTH-1:0] write_inst_queue;
 wire [DEPTH-1:0] read_inst_queue;
@@ -114,6 +133,23 @@ always @(posedge clk) begin
         pc_r <= icache_pc_i;
     end
 end
+
+assign winst_pc0  = icache_pc_i + 4*0 ;
+assign winst_pc1  = icache_pc_i + 4*1 ;
+assign winst_pc2  = icache_pc_i + 4*2 ;
+assign winst_pc3  = icache_pc_i + 4*3 ;
+assign winst_pc4  = icache_pc_i + 4*4 ;
+assign winst_pc5  = icache_pc_i + 4*5 ;
+assign winst_pc6  = icache_pc_i + 4*6 ;
+assign winst_pc7  = icache_pc_i + 4*7 ;
+assign winst_pc8  = icache_pc_i + 4*8 ;
+assign winst_pc9  = icache_pc_i + 4*9 ;
+assign winst_pc10 = icache_pc_i + 4*10;
+assign winst_pc11 = icache_pc_i + 4*11;
+assign winst_pc12 = icache_pc_i + 4*12;
+assign winst_pc13 = icache_pc_i + 4*13;
+assign winst_pc14 = icache_pc_i + 4*14;
+assign winst_pc15 = icache_pc_i + 4*15;
 
 assign winst0 = icache_data_i[0*32+:32];
 assign winst1 = icache_data_i[1*32+:32];
@@ -173,6 +209,23 @@ assign read_inst_queue[i] = iq0_vld_o && iq1_vld_o && !stall_iq_i &&
                             (i==rptr_val ||
                              i==rptr_val_add1);
 
+assign winstq_pc[i] = {32{i==wptr_val}}       & winst_pc0  |
+                      {32{i==wptr_val_add1}}  & winst_pc1  |
+                      {32{i==wptr_val_add2}}  & winst_pc2  |
+                      {32{i==wptr_val_add3}}  & winst_pc3  |
+                      {32{i==wptr_val_add4}}  & winst_pc4  |
+                      {32{i==wptr_val_add5}}  & winst_pc5  |
+                      {32{i==wptr_val_add6}}  & winst_pc6  |
+                      {32{i==wptr_val_add7}}  & winst_pc7  |
+                      {32{i==wptr_val_add8}}  & winst_pc8  |
+                      {32{i==wptr_val_add9}}  & winst_pc9  |
+                      {32{i==wptr_val_add10}} & winst_pc10 |
+                      {32{i==wptr_val_add11}} & winst_pc11 |
+                      {32{i==wptr_val_add12}} & winst_pc12 |
+                      {32{i==wptr_val_add13}} & winst_pc13 |
+                      {32{i==wptr_val_add14}} & winst_pc14 |
+                      {32{i==wptr_val_add15}} & winst_pc15 ;
+
 assign winstq_data[i] = {32{i==wptr_val}} & winst0 |
                         {32{i==wptr_val_add1}} & winst1 |
                         {32{i==wptr_val_add2}} & winst2 |
@@ -200,6 +253,7 @@ always @(posedge clk or negedge rst_n) begin
     else if(write_inst_queue[i]) begin
         valid_queue[i] <= 1'b1;
         inst_queue[i]  <= winstq_data[i];
+        pc_queue[i]    <= winstq_pc[i];
     end
     else if(read_inst_queue[i]) begin
         valid_queue[i] <= 1'b0;
@@ -211,11 +265,11 @@ endgenerate
 
 // output
 assign iq0_vld_o = valid_queue[rptr_val];
-assign iq0_pc_o  = pc_r + 0;
+assign iq0_pc_o  = pc_queue[rptr_val];
 assign iq0_inst_o = inst_queue[rptr_val];
 
 assign iq1_vld_o = valid_queue[rptr_val_add1];
-assign iq1_pc_o  = pc_r + 4;
+assign iq1_pc_o  = pc_queue[rptr_val_add1];
 assign iq1_inst_o = inst_queue[rptr_val_add1];
 
 endmodule

@@ -312,15 +312,15 @@ assign wb_inst0_redirect_pc_o = {64{beu_sel_wb0}} & beu_exe_redirect_pc_i;
 assign wb_inst1_redirect_o = {1{beu_sel_wb1}} & beu_exe_redirect_i;
 assign wb_inst1_redirect_pc_o = {64{beu_sel_wb1}} & beu_exe_redirect_pc_i;
 
-assign wb_inst0_sid_o = {`SCOREBOARD_SIZE_WIDTH{alu0_sel_wb0}} & alu0_exe_sid_i | 
-                       {`SCOREBOARD_SIZE_WIDTH{alu1_sel_wb0}} & alu1_exe_sid_i | 
-                       {`SCOREBOARD_SIZE_WIDTH{beu_sel_wb0}} & beu_exe_sid_i | 
-                       {`SCOREBOARD_SIZE_WIDTH{lsu_sel_wb0}} & lsu_exe_sid_i;
+assign wb_inst0_sid_o = {(`SCOREBOARD_SIZE_WIDTH+1){alu0_sel_wb0}} & alu0_exe_sid_i | 
+                        {(`SCOREBOARD_SIZE_WIDTH+1){alu1_sel_wb0}} & alu1_exe_sid_i | 
+                        {(`SCOREBOARD_SIZE_WIDTH+1){beu_sel_wb0}} & beu_exe_sid_i | 
+                        {(`SCOREBOARD_SIZE_WIDTH+1){lsu_sel_wb0}} & lsu_exe_sid_i;
 
-assign wb_inst1_sid_o = {`SCOREBOARD_SIZE_WIDTH{alu0_sel_wb1}} & alu0_exe_sid_i | 
-                       {`SCOREBOARD_SIZE_WIDTH{alu1_sel_wb1}} & alu1_exe_sid_i | 
-                       {`SCOREBOARD_SIZE_WIDTH{beu_sel_wb1}} & beu_exe_sid_i | 
-                       {`SCOREBOARD_SIZE_WIDTH{lsu_sel_wb1}} & lsu_exe_sid_i;
+assign wb_inst1_sid_o = {(`SCOREBOARD_SIZE_WIDTH+1){alu0_sel_wb1}} & alu0_exe_sid_i | 
+                        {(`SCOREBOARD_SIZE_WIDTH+1){alu1_sel_wb1}} & alu1_exe_sid_i | 
+                        {(`SCOREBOARD_SIZE_WIDTH+1){beu_sel_wb1}} & beu_exe_sid_i | 
+                        {(`SCOREBOARD_SIZE_WIDTH+1){lsu_sel_wb1}} & lsu_exe_sid_i;
 
 assign wb_inst0_inst_o = {32{alu0_sel_wb0}} & alu0_exe_inst_i | 
                         {32{alu1_sel_wb0}} & alu1_exe_inst_i | 
