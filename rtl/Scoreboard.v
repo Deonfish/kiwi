@@ -7,11 +7,15 @@ module Scoreboard(
     input  [4:0] decoder_inst0_rd_i,
     input  [4:0] decoder_inst0_rs1_i,
     input  [4:0] decoder_inst0_rs2_i,
+    input  [63:0] decoder_inst0_pc_i,
+    input  [31:0] decoder_inst0_inst_i,
     input  [0:0] decoder_inst1_vld_i,
     input  [5:0] decoder_inst1_exe_unit_i,
     input  [4:0] decoder_inst1_rd_i,
     input  [4:0] decoder_inst1_rs1_i,
     input  [4:0] decoder_inst1_rs2_i,
+    input  [63:0] decoder_inst1_pc_i,
+    input  [31:0] decoder_inst1_inst_i,
     // to decoder
     output [0:0] stall_decoder_inst0_o,
     output [0:0] stall_decoder_inst1_o,
@@ -55,21 +59,29 @@ module Scoreboard(
     output [0:0]                      wb_stall_inst1_o
 );
 
+    reg [63:0]                       scb_alu0_pc_r;
+    reg [31:0]                       scb_alu0_inst_r;
     reg                              scb_alu0_busy_r;
     reg [4:0]                        scb_alu0_rd_r;
     reg [4:0]                        scb_alu0_rs1_r;
     reg [4:0]                        scb_alu0_rs2_r;
     reg [`SCOREBOARD_SIZE_WIDTH:0]   scb_alu0_sid_r;
+    reg [63:0]                       scb_alu1_pc_r;
+    reg [31:0]                       scb_alu1_inst_r;
     reg                              scb_alu1_busy_r;
     reg [4:0]                        scb_alu1_rd_r;
     reg [4:0]                        scb_alu1_rs1_r;
     reg [4:0]                        scb_alu1_rs2_r;
     reg [`SCOREBOARD_SIZE_WIDTH:0]   scb_alu1_sid_r;
+    reg [63:0]                       scb_beu_pc_r;
+    reg [31:0]                       scb_beu_inst_r;
     reg                              scb_beu_busy_r;
     reg [4:0]                        scb_beu_rd_r;
     reg [4:0]                        scb_beu_rs1_r;
     reg [4:0]                        scb_beu_rs2_r;
     reg [`SCOREBOARD_SIZE_WIDTH:0]   scb_beu_sid_r;
+    reg [63:0]                       scb_lsu_pc_r;
+    reg [31:0]                       scb_lsu_inst_r;
     reg                              scb_lsu_busy_r;
     reg [4:0]                        scb_lsu_rd_r;
     reg [4:0]                        scb_lsu_rs1_r;
@@ -353,6 +365,17 @@ module Scoreboard(
         end
     end
 
+    always @(posedge clk or negedge rst_n) begin
+        if(inst0_wr_alu0) begin
+            scb_alu0_pc_r   <= decoder_inst0_pc_i;
+            scb_alu0_inst_r <= decoder_inst0_inst_i;
+        end
+        else if(inst1_wr_alu0) begin
+            scb_alu0_pc_r   <= decoder_inst1_pc_i;
+            scb_alu0_inst_r <= decoder_inst1_inst_i;
+        end
+    end
+
     // write alu1
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -377,6 +400,17 @@ module Scoreboard(
         end
         else if(wb_inst1_vld_i && wb_inst1_sid_i == scb_alu1_sid_r && !wb_stall_inst1_o) begin
             scb_alu1_busy_r <= 0;
+        end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if(inst0_wr_alu1) begin
+            scb_alu1_pc_r   <= decoder_inst0_pc_i;
+            scb_alu1_inst_r <= decoder_inst0_inst_i;
+        end
+        else if(inst1_wr_alu1) begin
+            scb_alu1_pc_r   <= decoder_inst1_pc_i;
+            scb_alu1_inst_r <= decoder_inst1_inst_i;
         end
     end
 
@@ -407,6 +441,17 @@ module Scoreboard(
         end
     end
 
+    always @(posedge clk or negedge rst_n) begin
+        if(inst0_wr_beu) begin
+            scb_beu_pc_r   <= decoder_inst0_pc_i;
+            scb_beu_inst_r <= decoder_inst0_inst_i;
+        end
+        else if(inst1_wr_beu) begin
+            scb_beu_pc_r   <= decoder_inst1_pc_i;
+            scb_beu_inst_r <= decoder_inst1_inst_i;
+        end
+    end
+
     // write lsu
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -433,5 +478,47 @@ module Scoreboard(
             scb_lsu_busy_r <= 0;
         end
     end
+
+    always @(posedge clk or negedge rst_n) begin
+        if(inst0_wr_lsu) begin
+            scb_lsu_pc_r   <= decoder_inst0_pc_i;
+            scb_lsu_inst_r <= decoder_inst0_inst_i;
+        end
+        else if(inst1_wr_lsu) begin
+            scb_lsu_pc_r   <= decoder_inst1_pc_i;
+            scb_lsu_inst_r <= decoder_inst1_inst_i;
+        end
+    end
+
+wire [63:0] wb_inst0_pc;
+wire [31:0] wb_inst0_inst;
+wire [63:0] wb_inst1_pc;
+wire [31:0] wb_inst1_inst;
+
+assign wb_inst0_pc = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_pc_r :
+                     wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu0_pc_r :
+                     wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_pc_r :
+                     wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_pc_r : 0;
+
+assign wb_inst0_inst = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_inst_r :
+                       wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu0_inst_r :
+                       wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_inst_r :
+                       wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_inst_r : 0;
+
+InstMonitor u_instMonitor0 (
+	.clk(clk),
+	.inst_valid_i(wb_inst0_vld_i && !wb_stall_inst0_o),
+	.inst_pc_i(wb_inst0_pc),
+	.inst_i(wb_inst0_inst),
+	.inst_sid(wb_inst0_sid_i)
+);
+
+InstMonitor u_instMonitor1 (
+	.clk(clk),
+	.inst_valid_i(wb_inst1_vld_i && !wb_stall_inst1_o),
+	.inst_pc_i(wb_inst1_pc),
+	.inst_i(wb_inst1_inst),
+	.inst_sid(wb_inst1_sid_i)
+);
 
 endmodule
