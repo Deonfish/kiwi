@@ -52,22 +52,22 @@ wire                   rptr_hi;
 wire [DEPTH_WIDTH-1:0] rptr_val;
 wire [DEPTH_WIDTH-1:0] rptr_val_add1;
 
-reg [63:0] winst_pc0;
-reg [63:0] winst_pc1;
-reg [63:0] winst_pc2;
-reg [63:0] winst_pc3;
-reg [63:0] winst_pc4;
-reg [63:0] winst_pc5;
-reg [63:0] winst_pc6;
-reg [63:0] winst_pc7;
-reg [63:0] winst_pc8;
-reg [63:0] winst_pc9;
-reg [63:0] winst_pc10;
-reg [63:0] winst_pc11;
-reg [63:0] winst_pc12;
-reg [63:0] winst_pc13;
-reg [63:0] winst_pc14;
-reg [63:0] winst_pc15;
+wire [63:0] winst_pc0;
+wire [63:0] winst_pc1;
+wire [63:0] winst_pc2;
+wire [63:0] winst_pc3;
+wire [63:0] winst_pc4;
+wire [63:0] winst_pc5;
+wire [63:0] winst_pc6;
+wire [63:0] winst_pc7;
+wire [63:0] winst_pc8;
+wire [63:0] winst_pc9;
+wire [63:0] winst_pc10;
+wire [63:0] winst_pc11;
+wire [63:0] winst_pc12;
+wire [63:0] winst_pc13;
+wire [63:0] winst_pc14;
+wire [63:0] winst_pc15;
 
 reg [31:0] winst0;
 reg [31:0] winst1;
@@ -136,22 +136,22 @@ always @(posedge clk) begin
     end
 end
 
-// assign winst_pc0  = icache_pc_i + 4*0 ;
-// assign winst_pc1  = icache_pc_i + 4*1 ;
-// assign winst_pc2  = icache_pc_i + 4*2 ;
-// assign winst_pc3  = icache_pc_i + 4*3 ;
-// assign winst_pc4  = icache_pc_i + 4*4 ;
-// assign winst_pc5  = icache_pc_i + 4*5 ;
-// assign winst_pc6  = icache_pc_i + 4*6 ;
-// assign winst_pc7  = icache_pc_i + 4*7 ;
-// assign winst_pc8  = icache_pc_i + 4*8 ;
-// assign winst_pc9  = icache_pc_i + 4*9 ;
-// assign winst_pc10 = icache_pc_i + 4*10;
-// assign winst_pc11 = icache_pc_i + 4*11;
-// assign winst_pc12 = icache_pc_i + 4*12;
-// assign winst_pc13 = icache_pc_i + 4*13;
-// assign winst_pc14 = icache_pc_i + 4*14;
-// assign winst_pc15 = icache_pc_i + 4*15;
+assign winst_pc0  = icache_pc_i + 4*0 ;
+assign winst_pc1  = icache_pc_i + 4*1 ;
+assign winst_pc2  = icache_pc_i + 4*2 ;
+assign winst_pc3  = icache_pc_i + 4*3 ;
+assign winst_pc4  = icache_pc_i + 4*4 ;
+assign winst_pc5  = icache_pc_i + 4*5 ;
+assign winst_pc6  = icache_pc_i + 4*6 ;
+assign winst_pc7  = icache_pc_i + 4*7 ;
+assign winst_pc8  = icache_pc_i + 4*8 ;
+assign winst_pc9  = icache_pc_i + 4*9 ;
+assign winst_pc10 = icache_pc_i + 4*10;
+assign winst_pc11 = icache_pc_i + 4*11;
+assign winst_pc12 = icache_pc_i + 4*12;
+assign winst_pc13 = icache_pc_i + 4*13;
+assign winst_pc14 = icache_pc_i + 4*14;
+assign winst_pc15 = icache_pc_i + 4*15;
 
 // assign winst0 = icache_data_i[0*32+:32];
 // assign winst1 = icache_data_i[1*32+:32];
@@ -205,23 +205,6 @@ always @(*) begin
         winst13 = icache_data_i[13*32+:32];
         winst14 = icache_data_i[14*32+:32];
         winst15 = icache_data_i[15*32+:32];
-
-        winst_pc0  = icache_pc_i + 4*0 ;
-        winst_pc1  = icache_pc_i + 4*1 ;
-        winst_pc2  = icache_pc_i + 4*2 ;
-        winst_pc3  = icache_pc_i + 4*3 ;
-        winst_pc4  = icache_pc_i + 4*4 ;
-        winst_pc5  = icache_pc_i + 4*5 ;
-        winst_pc6  = icache_pc_i + 4*6 ;
-        winst_pc7  = icache_pc_i + 4*7 ;
-        winst_pc8  = icache_pc_i + 4*8 ;
-        winst_pc9  = icache_pc_i + 4*9 ;
-        winst_pc10 = icache_pc_i + 4*10;
-        winst_pc11 = icache_pc_i + 4*11;
-        winst_pc12 = icache_pc_i + 4*12;
-        winst_pc13 = icache_pc_i + 4*13;
-        winst_pc14 = icache_pc_i + 4*14;
-        winst_pc15 = icache_pc_i + 4*15;
     end
     else if(icache_pc_i[5:2]==4'h1) begin
         winst0  = icache_data_i[1*32+:32] ;
@@ -240,23 +223,6 @@ always @(*) begin
         winst13 = icache_data_i[14*32+:32];
         winst14 = icache_data_i[15*32+:32];
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*1 ;
-        winst_pc1  = icache_pc_i + 4*2 ;
-        winst_pc2  = icache_pc_i + 4*3 ;
-        winst_pc3  = icache_pc_i + 4*4 ;
-        winst_pc4  = icache_pc_i + 4*5 ;
-        winst_pc5  = icache_pc_i + 4*6 ;
-        winst_pc6  = icache_pc_i + 4*7 ;
-        winst_pc7  = icache_pc_i + 4*8 ;
-        winst_pc8  = icache_pc_i + 4*9 ;
-        winst_pc9  = icache_pc_i + 4*10;
-        winst_pc10 = icache_pc_i + 4*11;
-        winst_pc11 = icache_pc_i + 4*12;
-        winst_pc12 = icache_pc_i + 4*13;
-        winst_pc13 = icache_pc_i + 4*14;
-        winst_pc14 = icache_pc_i + 4*15;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'h2) begin
         winst0  = icache_data_i[2*32+:32] ;
@@ -275,23 +241,6 @@ always @(*) begin
         winst13 = icache_data_i[15*32+:32];
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*2 ;
-        winst_pc1  = icache_pc_i + 4*3 ;
-        winst_pc2  = icache_pc_i + 4*4 ;
-        winst_pc3  = icache_pc_i + 4*5 ;
-        winst_pc4  = icache_pc_i + 4*6 ;
-        winst_pc5  = icache_pc_i + 4*7 ;
-        winst_pc6  = icache_pc_i + 4*8 ;
-        winst_pc7  = icache_pc_i + 4*9 ;
-        winst_pc8  = icache_pc_i + 4*10;
-        winst_pc9  = icache_pc_i + 4*11;
-        winst_pc10 = icache_pc_i + 4*12;
-        winst_pc11 = icache_pc_i + 4*13;
-        winst_pc12 = icache_pc_i + 4*14;
-        winst_pc13 = icache_pc_i + 4*15;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'h3) begin
         winst0  = icache_data_i[3*32+:32] ;
@@ -310,23 +259,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*3 ;
-        winst_pc1  = icache_pc_i + 4*4 ;
-        winst_pc2  = icache_pc_i + 4*5 ;
-        winst_pc3  = icache_pc_i + 4*6 ;
-        winst_pc4  = icache_pc_i + 4*7 ;
-        winst_pc5  = icache_pc_i + 4*8 ;
-        winst_pc6  = icache_pc_i + 4*9 ;
-        winst_pc7  = icache_pc_i + 4*10;
-        winst_pc8  = icache_pc_i + 4*11;
-        winst_pc9  = icache_pc_i + 4*12;
-        winst_pc10 = icache_pc_i + 4*13;
-        winst_pc11 = icache_pc_i + 4*14;
-        winst_pc12 = icache_pc_i + 4*15;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'h4) begin
         winst0  = icache_data_i[4*32+:32] ;
@@ -345,23 +277,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*4 ;
-        winst_pc1  = icache_pc_i + 4*5 ;
-        winst_pc2  = icache_pc_i + 4*6 ;
-        winst_pc3  = icache_pc_i + 4*7 ;
-        winst_pc4  = icache_pc_i + 4*8 ;
-        winst_pc5  = icache_pc_i + 4*9 ;
-        winst_pc6  = icache_pc_i + 4*10;
-        winst_pc7  = icache_pc_i + 4*11;
-        winst_pc8  = icache_pc_i + 4*12;
-        winst_pc9  = icache_pc_i + 4*13;
-        winst_pc10 = icache_pc_i + 4*14;
-        winst_pc11 = icache_pc_i + 4*15;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'h5) begin
         winst0  = icache_data_i[5*32+:32] ;
@@ -380,23 +295,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*5 ;
-        winst_pc1  = icache_pc_i + 4*6 ;
-        winst_pc2  = icache_pc_i + 4*7 ;
-        winst_pc3  = icache_pc_i + 4*8 ;
-        winst_pc4  = icache_pc_i + 4*9 ;
-        winst_pc5  = icache_pc_i + 4*10;
-        winst_pc6  = icache_pc_i + 4*11;
-        winst_pc7  = icache_pc_i + 4*12;
-        winst_pc8  = icache_pc_i + 4*13;
-        winst_pc9  = icache_pc_i + 4*14;
-        winst_pc10 = icache_pc_i + 4*15;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'h6) begin
         winst0  = icache_data_i[6*32+:32] ;
@@ -415,23 +313,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*6 ;
-        winst_pc1  = icache_pc_i + 4*7 ;
-        winst_pc2  = icache_pc_i + 4*8 ;
-        winst_pc3  = icache_pc_i + 4*9 ;
-        winst_pc4  = icache_pc_i + 4*10;
-        winst_pc5  = icache_pc_i + 4*11;
-        winst_pc6  = icache_pc_i + 4*12;
-        winst_pc7  = icache_pc_i + 4*13;
-        winst_pc8  = icache_pc_i + 4*14;
-        winst_pc9  = icache_pc_i + 4*15;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'h7) begin
         winst0  = icache_data_i[7*32+:32] ;
@@ -450,23 +331,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*7 ;
-        winst_pc1  = icache_pc_i + 4*8 ;
-        winst_pc2  = icache_pc_i + 4*9 ;
-        winst_pc3  = icache_pc_i + 4*10;
-        winst_pc4  = icache_pc_i + 4*11;
-        winst_pc5  = icache_pc_i + 4*12;
-        winst_pc6  = icache_pc_i + 4*13;
-        winst_pc7  = icache_pc_i + 4*14;
-        winst_pc8  = icache_pc_i + 4*15;
-        winst_pc9  = 'b0;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'h8) begin
         winst0  = icache_data_i[8*32+:32] ;
@@ -485,23 +349,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*8 ;
-        winst_pc1  = icache_pc_i + 4*9 ;
-        winst_pc2  = icache_pc_i + 4*10;
-        winst_pc3  = icache_pc_i + 4*11;
-        winst_pc4  = icache_pc_i + 4*12;
-        winst_pc5  = icache_pc_i + 4*13;
-        winst_pc6  = icache_pc_i + 4*14;
-        winst_pc7  = icache_pc_i + 4*15;
-        winst_pc8  = 'b0;
-        winst_pc9  = 'b0;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'h9) begin
         winst0  = icache_data_i[9*32+:32] ;
@@ -520,23 +367,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*9 ;
-        winst_pc1  = icache_pc_i + 4*10;
-        winst_pc2  = icache_pc_i + 4*11;
-        winst_pc3  = icache_pc_i + 4*12;
-        winst_pc4  = icache_pc_i + 4*13;
-        winst_pc5  = icache_pc_i + 4*14;
-        winst_pc6  = icache_pc_i + 4*15;
-        winst_pc7  = 'b0;
-        winst_pc8  = 'b0;
-        winst_pc9  = 'b0;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'ha) begin
         winst0  = icache_data_i[10*32+:32];
@@ -555,23 +385,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*10;
-        winst_pc1  = icache_pc_i + 4*11;
-        winst_pc2  = icache_pc_i + 4*12;
-        winst_pc3  = icache_pc_i + 4*13;
-        winst_pc4  = icache_pc_i + 4*14;
-        winst_pc5  = icache_pc_i + 4*15;
-        winst_pc6  = 'b0;
-        winst_pc7  = 'b0;
-        winst_pc8  = 'b0;
-        winst_pc9  = 'b0;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'hb) begin
         winst0  = icache_data_i[11*32+:32];
@@ -590,23 +403,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*11;
-        winst_pc1  = icache_pc_i + 4*12;
-        winst_pc2  = icache_pc_i + 4*13;
-        winst_pc3  = icache_pc_i + 4*14;
-        winst_pc4  = icache_pc_i + 4*15;
-        winst_pc5  = 'b0;
-        winst_pc6  = 'b0;
-        winst_pc7  = 'b0;
-        winst_pc8  = 'b0;
-        winst_pc9  = 'b0;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'hc) begin
         winst0  = icache_data_i[12*32+:32];
@@ -625,23 +421,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*12;
-        winst_pc1  = icache_pc_i + 4*13;
-        winst_pc2  = icache_pc_i + 4*14;
-        winst_pc3  = icache_pc_i + 4*15;
-        winst_pc4  = 'b0;
-        winst_pc5  = 'b0;
-        winst_pc6  = 'b0;
-        winst_pc7  = 'b0;
-        winst_pc8  = 'b0;
-        winst_pc9  = 'b0;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'hd) begin
         winst0  = icache_data_i[13*32+:32];
@@ -660,23 +439,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*13;
-        winst_pc1  = icache_pc_i + 4*14;
-        winst_pc2  = icache_pc_i + 4*15;
-        winst_pc3  = 'b0;
-        winst_pc4  = 'b0;
-        winst_pc5  = 'b0;
-        winst_pc6  = 'b0;
-        winst_pc7  = 'b0;
-        winst_pc8  = 'b0;
-        winst_pc9  = 'b0;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else if(icache_pc_i[5:2]==4'he) begin
         winst0  = icache_data_i[14*32+:32];
@@ -695,23 +457,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*14;
-        winst_pc1  = icache_pc_i + 4*15;
-        winst_pc2  = 'b0;
-        winst_pc3  = 'b0;
-        winst_pc4  = 'b0;
-        winst_pc5  = 'b0;
-        winst_pc6  = 'b0;
-        winst_pc7  = 'b0;
-        winst_pc8  = 'b0;
-        winst_pc9  = 'b0;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
     else begin
         winst0  = icache_data_i[15*32+:32];
@@ -730,23 +475,6 @@ always @(*) begin
         winst13 = 'b0;
         winst14 = 'b0;
         winst15 = 'b0;
-
-        winst_pc0  = icache_pc_i + 4*15;
-        winst_pc1  = 'b0;
-        winst_pc2  = 'b0;
-        winst_pc3  = 'b0;
-        winst_pc4  = 'b0;
-        winst_pc5  = 'b0;
-        winst_pc6  = 'b0;
-        winst_pc7  = 'b0;
-        winst_pc8  = 'b0;
-        winst_pc9  = 'b0;
-        winst_pc10 = 'b0;
-        winst_pc11 = 'b0;
-        winst_pc12 = 'b0;
-        winst_pc13 = 'b0;
-        winst_pc14 = 'b0;
-        winst_pc15 = 'b0;
     end
 end
 
