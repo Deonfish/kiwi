@@ -769,23 +769,23 @@ assign wptr_val_add15 = wptr_val + 15;
 generate
 for(i=0; i<DEPTH; i=i+1) begin
 
-assign write_inst_queue[i] = icache_valid_i && !instq_full_o && write_vector[i] &&
-                             (i==wptr_val      ||
-                             i==wptr_val_add1  ||
-                             i==wptr_val_add2  ||
-                             i==wptr_val_add3  ||
-                             i==wptr_val_add4  ||
-                             i==wptr_val_add5  ||
-                             i==wptr_val_add6  ||
-                             i==wptr_val_add7  ||
-                             i==wptr_val_add8  ||
-                             i==wptr_val_add9  ||
-                             i==wptr_val_add10 ||
-                             i==wptr_val_add11 ||
-                             i==wptr_val_add12 ||
-                             i==wptr_val_add13 ||
-                             i==wptr_val_add14 ||
-                             i==wptr_val_add15);
+assign write_inst_queue[i] = icache_valid_i && !instq_full_o && 
+                             (i==wptr_val      && write_vector[0] ||
+                             i==wptr_val_add1  && write_vector[1] ||
+                             i==wptr_val_add2  && write_vector[2] ||
+                             i==wptr_val_add3  && write_vector[3] ||
+                             i==wptr_val_add4  && write_vector[4] ||
+                             i==wptr_val_add5  && write_vector[5] ||
+                             i==wptr_val_add6  && write_vector[6] ||
+                             i==wptr_val_add7  && write_vector[7] ||
+                             i==wptr_val_add8  && write_vector[8] ||
+                             i==wptr_val_add9  && write_vector[9] ||
+                             i==wptr_val_add10 && write_vector[10] ||
+                             i==wptr_val_add11 && write_vector[11] ||
+                             i==wptr_val_add12 && write_vector[12] ||
+                             i==wptr_val_add13 && write_vector[13] ||
+                             i==wptr_val_add14 && write_vector[14] ||
+                             i==wptr_val_add15 && write_vector[15]);
 
 assign read_inst_queue[i] = iq0_vld_o && iq1_vld_o && !stall_iq_i && 
                             (i==rptr_val ||
