@@ -3,7 +3,7 @@ VCS_UVM_HOME = $(VCS_HOME)/etc/uvm-1.1
 TESTNAME ?=
 UVM_VERBOSITY=UVM_LOW
 
-FILE = ../rtl/filelist.f 
+FILE = ../tb/tb_flist.f 
 
 ifeq ($(PROJ_NAME), )
 	WAVEFILE = wave.fsdb
