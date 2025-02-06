@@ -24,20 +24,20 @@ module BIU(
     output reg [63:0]      uncache_resp_rdata_o,
     output reg [0:0]       uncache_resp_err_o,
     // axi3-lite
-    output reg [0:0]       awvalid_o,
+    output     [0:0]       awvalid_o,
     input      [0:0]       awready_i,
-    output reg [63:0]      awaddr_o,
+    output     [63:0]      awaddr_o,
     output reg [2:0]       awprot_o,
     output reg [0:0]       wvalid_o,
     input      [0:0]       wready_i,
-    output reg [63:0]      wdata_o,
-    output reg [7:0]       wstrb_o,
+    output     [63:0]      wdata_o,
+    output     [7:0]       wstrb_o,
     input      [0:0]       bvalid_i,
     output reg [0:0]       bready_o,
     input      [1:0]       bresp_i,
-    output reg [0:0]       arvalid_o,
+    output     [0:0]       arvalid_o,
     input      [0:0]       arready_i,
-    output reg [63:0]      araddr_o,
+    output     [63:0]      araddr_o,
     output reg [2:0]       arprot_o,
     input      [0:0]       rvalid_i,
     output reg [0:0]       rready_o,
@@ -142,9 +142,6 @@ always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         cache_req_rdy_o   <= 1'b0;
         uncache_req_rdy_o <= 1'b0;
-        arvalid_o         <= 1'b0;
-        awvalid_o         <= 1'b0;
-        wvalid_o          <= 1'b0;
         bready_o          <= 1'b1;
         rready_o          <= 1'b1;
         cache_resp_vld_o  <= 1'b0;
@@ -157,9 +154,6 @@ always @(posedge clk or negedge rst_n) begin
         uncache_req_rdy_o  <= 1'b0;
         cache_resp_vld_o   <= 1'b0;
         uncache_resp_vld_o <= 1'b0;
-        arvalid_o          <= 1'b0;
-        awvalid_o          <= 1'b0;
-        wvalid_o           <= 1'b0;
 
         case (cur_state)
             ST_IDLE: begin
@@ -181,14 +175,11 @@ always @(posedge clk or negedge rst_n) begin
 
             ST_SEND_ADDR: begin
                 if (req_is_read) begin
-                    arvalid_o <= 1'b1;
-                    araddr_o  <= req_addr + (beat_count << 3);
                     if(req_is_cache && arvalid_o && arready_i) begin
                         beat_count <= beat_count + 1'b1;
                     end
                 end else begin
-                    awvalid_o <= 1'b1;
-                    awaddr_o  <= req_addr + (beat_count << 3);
+                    
                     if(req_is_cache && awvalid_o && awready_i) begin
                         beat_count <= beat_count + 1'b1;
                     end
@@ -196,9 +187,6 @@ always @(posedge clk or negedge rst_n) begin
             end
 
             ST_SEND_WRITE: begin
-                wvalid_o <= 1'b1;
-                wdata_o <= req_wdata[ (beat_count*64) +: 64];
-                wstrb_o <= 8'hFF;
                 if(req_is_cache && wvalid_o && wready_i) begin
                     beat_count <= beat_count + 1'b1;
                 end
@@ -239,5 +227,15 @@ always @(posedge clk or negedge rst_n) begin
         read_data_accum[(read_buf_cnt*64) +: 64] <= rdata_i;
     end
 end
+
+assign arvalid_o = cur_state == ST_SEND_ADDR & req_is_read;
+assign araddr_o  = req_addr + (beat_count << 3);
+
+assign awvalid_o = cur_state == ST_SEND_ADDR & ~req_is_read;
+assign awaddr_o  = req_addr + (beat_count << 3);
+
+assign wvalid_o = cur_state == ST_SEND_WRITE;
+assign wdata_o  = req_wdata[ (beat_count*64) +: 64];
+assign wstrb_o  = 8'hFF;
 
 endmodule

@@ -306,7 +306,7 @@ Fetch0 u_Fetch0 (
 	.rst_n(rst_n),
 	.reset_vec(reset_vec),
     // flush from wb
-	.redir_i(1'b0),
+	.redir_i(wb_redirect),
 	.redir_pc_i(wb_redirect_pc),
     // stall from instQueue
 	.stall_f0_i(instq_full || stall_f0),
@@ -336,7 +336,7 @@ Icache u_Icache (
     // stall from instQueue
 	.stall_icache_i(instq_full),
     // squash from backend
-	.squash_pipe_i(1'b0)
+	.squash_pipe_i(wb_redirect)
 );
 
 BIU u_IBIU (
@@ -946,6 +946,8 @@ Scoreboard u_Scoreboard (
     .alu1_exe_stall_o          (alu1_exe_stall),
     .beu_exe_stall_o           (beu_exe_stall),
     .lsu_exe_stall_o           (lsu_exe_stall),
+    .beu_exe_pc_o              (beu_op_pc),
+    .beu_exe_inst_o            (beu_op_inst),
     // from write back
     .wb_inst0_vld_i            (wb_inst0_valid),
     .wb_inst0_sid_i            (wb_inst0_sid),

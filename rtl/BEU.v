@@ -28,6 +28,7 @@ reg [3:0] branch_func_code_r;
 wire [4:0] branch_rd;
 reg redirect;
 reg [63:0] redirect_pc;
+reg [`SCOREBOARD_SIZE_WIDTH:0] branch_sid_r;
 
 wire [2:0] func3;
 wire jal;
@@ -72,6 +73,7 @@ always @(posedge clk or negedge rst_n) begin
 		branch_rs1_value_r <= rs1_value_i;
 		branch_rs2_value_r <= rs2_value_i;
 		branch_func_code_r <= func_code_i;
+		branch_sid_r <= branch_sid_i;
 	end
 	else begin
 		branch_valid_r <= 1'b0;
@@ -117,6 +119,6 @@ assign redirect_pc = jal ? jal_target_pc : jalr ? jalr_target_pc : b_target_pc;
 assign branch_valid_o = branch_valid_r;
 assign branch_redirect_o = redirect;
 assign branch_redirect_pc_o = redirect_pc;
-assign branch_sid_o = branch_sid_i;
+assign branch_sid_o = branch_sid_r;
 
 endmodule

@@ -47,6 +47,8 @@ module Scoreboard(
     output [0:0]                      alu1_exe_stall_o,
     output [0:0]                      beu_exe_stall_o,
     output [0:0]                      lsu_exe_stall_o,
+    output [63:0]                     beu_exe_pc_o,
+    output [31:0]                     beu_exe_inst_o,
     // from write back
     input  [0:0]                      wb_inst0_vld_i,
     input  [`SCOREBOARD_SIZE_WIDTH:0] wb_inst0_sid_i,
@@ -54,9 +56,14 @@ module Scoreboard(
     input  [0:0]                      wb_inst1_vld_i,
     input  [`SCOREBOARD_SIZE_WIDTH:0] wb_inst1_sid_i,
     input  [4:0]                      wb_inst1_rd_i,
+    input                             wb_redirect_i,
+    input  [63:0]                     wb_redirect_pc_i,
+    input  [`SCOREBOARD_SIZE_WIDTH:0] wb_redirect_sid_i,
     // to write back
     output [0:0]                      wb_stall_inst0_o,
-    output [0:0]                      wb_stall_inst1_o
+    output [0:0]                      wb_stall_inst1_o,
+    output [0:0]                      flush_wb_inst0_o,
+    output [0:0]                      flush_wb_inst1_o
 );
 
     reg [63:0]                       scb_alu0_pc_r;
@@ -143,7 +150,7 @@ module Scoreboard(
                        (scb_lsu_busy_r  && scb_lsu_rd_r  == decoder_inst1_rd_i);
 
     assign inst1_wr_alu0 = inst1_sel_alu0 && !scb_alu0_busy_r && !inst1_waw && !inst0_wr_alu0;
-    assign inst1_wr_alu1 = inst1_sel_alu1 && (scb_alu0_busy_r && !scb_alu1_busy_r) && !inst1_waw && !inst0_wr_alu1;
+    assign inst1_wr_alu1 = inst1_sel_alu1 && ((scb_alu0_busy_r || inst0_wr_alu0) && !scb_alu1_busy_r) && !inst1_waw && !inst0_wr_alu1;
     assign inst1_wr_beu  = inst1_sel_beu  && !scb_beu_busy_r  && !inst1_waw && !inst0_wr_beu;
     assign inst1_wr_lsu  = inst1_sel_lsu  && !scb_lsu_busy_r  && !inst1_waw && !inst0_wr_lsu;
 
@@ -260,6 +267,9 @@ module Scoreboard(
     assign alu1_exe_stall_o = 1'b0;
     assign beu_exe_stall_o  = 1'b0;
     assign lsu_exe_stall_o  = 1'b0;
+
+    assign beu_exe_pc_o = scb_beu_pc_r;
+    assign beu_exe_inst_o = scb_beu_inst_r;
 
     // ----------------- write back -----------------
 
@@ -496,14 +506,24 @@ wire [63:0] wb_inst1_pc;
 wire [31:0] wb_inst1_inst;
 
 assign wb_inst0_pc = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_pc_r :
-                     wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu0_pc_r :
+                     wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu1_pc_r :
                      wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_pc_r :
                      wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_pc_r : 0;
 
 assign wb_inst0_inst = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_inst_r :
-                       wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu0_inst_r :
+                       wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu1_inst_r :
                        wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_inst_r :
                        wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_inst_r : 0;
+
+assign wb_inst1_pc = wb_inst1_sid_i == scb_alu0_sid_r ? scb_alu0_pc_r :
+                     wb_inst1_sid_i == scb_alu1_sid_r ? scb_alu1_pc_r :
+                     wb_inst1_sid_i == scb_beu_sid_r  ? scb_beu_pc_r :
+                     wb_inst1_sid_i == scb_lsu_sid_r  ? scb_lsu_pc_r : 0;
+
+assign wb_inst1_inst = wb_inst1_sid_i == scb_alu0_sid_r ? scb_alu0_inst_r :
+                       wb_inst1_sid_i == scb_alu1_sid_r ? scb_alu1_inst_r :
+                       wb_inst1_sid_i == scb_beu_sid_r  ? scb_beu_inst_r :
+                       wb_inst1_sid_i == scb_lsu_sid_r  ? scb_lsu_inst_r : 0;
 
 InstMonitor u_instMonitor0 (
 	.clk(clk),
