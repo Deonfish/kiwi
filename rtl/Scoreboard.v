@@ -46,13 +46,13 @@ module Scoreboard(
     output [0:0]                      op_flush_inst1_o,
     // from execute
     input  [0:0]                      alu0_exe_vld_i,
-    input  [`SCOREBOARD_SIZE_WIDTH:0] alu0_exe_sid_i;
+    input  [`SCOREBOARD_SIZE_WIDTH:0] alu0_exe_sid_i,
     input  [0:0]                      alu1_exe_vld_i,
-    input  [`SCOREBOARD_SIZE_WIDTH:0] alu1_exe_sid_i;
+    input  [`SCOREBOARD_SIZE_WIDTH:0] alu1_exe_sid_i,
     input  [0:0]                      beu_exe_vld_i,
-    input  [`SCOREBOARD_SIZE_WIDTH:0] beu_exe_sid_i;
+    input  [`SCOREBOARD_SIZE_WIDTH:0] beu_exe_sid_i,
     input  [0:0]                      lsu_exe_vld_i,
-    input  [`SCOREBOARD_SIZE_WIDTH:0] lsu_exe_sid_i;
+    input  [`SCOREBOARD_SIZE_WIDTH:0] lsu_exe_sid_i,
     // to execute
     output [0:0]                      alu0_exe_stall_o,
     output [0:0]                      alu0_exe_flush_o,
@@ -202,15 +202,15 @@ module Scoreboard(
         end
     end
 
-    assign flush_decoder_inst0_o = wb_redirect_i &&  
-                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == decoder_inst0_sid_o[`SCOREBOARD_SIZE_WIDTH] ?
+    assign flush_decoder_inst0_o = wb_redirect_i &  
+                                   (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == decoder_inst0_sid_o[`SCOREBOARD_SIZE_WIDTH] ?
                                    wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < decoder_inst0_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > decoder_inst0_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0];
+                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > decoder_inst0_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
-    assign flush_decoder_inst1_o = wb_redirect_i &&  
-                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == decoder_inst1_sid_o[`SCOREBOARD_SIZE_WIDTH] ?
+    assign flush_decoder_inst1_o = wb_redirect_i &  
+                                   (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == decoder_inst1_sid_o[`SCOREBOARD_SIZE_WIDTH] ?
                                    wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < decoder_inst1_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > decoder_inst1_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0];
+                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > decoder_inst1_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
     // ----------------- operands -----------------
 
@@ -291,15 +291,15 @@ module Scoreboard(
     assign op_stall_inst0_o = op_inst0_raw;
     assign op_stall_inst1_o = op_inst1_raw;
 
-    assign op_flush_inst0_o = wb_redirect_i &&  
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == op_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+    assign op_flush_inst0_o = wb_redirect_i &  
+                              (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == op_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < op_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > op_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > op_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
-    assign op_flush_inst1_o = wb_redirect_i &&  
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == op_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+    assign op_flush_inst1_o = wb_redirect_i &  
+                              (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == op_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < op_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > op_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > op_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
     // ----------------- execute -----------------
 
@@ -311,25 +311,25 @@ module Scoreboard(
     assign beu_exe_pc_o = scb_beu_pc_r;
     assign beu_exe_inst_o = scb_beu_inst_r;
 
-    assign alu0_exe_flush_o = wb_redirect_i &&  
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == alu0_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+    assign alu0_exe_flush_o = wb_redirect_i &  
+                              (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == alu0_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < alu0_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > alu0_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > alu0_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
-    assign alu1_exe_flush_o = wb_redirect_i &&  
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == alu1_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+    assign alu1_exe_flush_o = wb_redirect_i &  
+                              (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == alu1_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < alu1_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > alu1_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > alu1_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
-    assign beu_exe_flush_o =  wb_redirect_i &&  
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == beu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+    assign beu_exe_flush_o =  wb_redirect_i &  
+                              (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == beu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < beu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > beu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > beu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
-    assign lsu_exe_flush_o =  wb_redirect_i &&  
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == lsu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+    assign lsu_exe_flush_o =  wb_redirect_i &  
+                              (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == lsu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < lsu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > lsu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > lsu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
     // ----------------- write back -----------------
 
@@ -406,37 +406,40 @@ module Scoreboard(
     assign wb_stall_inst0_o = wb_inst0_war;
     assign wb_stall_inst1_o = wb_inst1_war;
 
-    assign wb_flush_inst0_o = wb_redirect_i &&  
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == wb_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+    assign wb_flush_inst0_o = wb_redirect_i &  
+                              (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == wb_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < wb_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > wb_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > wb_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
-    assign wb_flush_inst1_o = wb_redirect_i &&  
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+    assign wb_flush_inst1_o = wb_redirect_i &  
+                              (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
-
-    assign flush_alu0 = wb_redirect_i &&
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_alu0_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_alu0_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_alu0_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0];
-
-    assign flush_alu1 = wb_redirect_i &&
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_alu1_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_alu1_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_alu1_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0];
-
-    assign flush_beu =  wb_redirect_i &&
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_beu_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_beu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_beu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0];
-
-    assign flush_lsu =  wb_redirect_i &&
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_lsu_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_lsu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
-                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_lsu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0];
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
     // ----------------- scoreboard -----------------
+
+    assign flush_front_o = wb_redirect_i;
+    assign flush_front_pc_o = wb_redirect_pc_i;
+
+    assign flush_alu0 = wb_redirect_i &
+                        (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_alu0_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_alu0_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_alu0_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0]);
+
+    assign flush_alu1 = wb_redirect_i &
+                        (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_alu1_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_alu1_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_alu1_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0]);
+
+    assign flush_beu =  wb_redirect_i &
+                        (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_beu_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_beu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_beu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0]);
+
+    assign flush_lsu =  wb_redirect_i &
+                        (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_lsu_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_lsu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_lsu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0]);
 
     // write alu0
     always @(posedge clk or negedge rst_n) begin
