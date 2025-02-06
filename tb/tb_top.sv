@@ -42,23 +42,49 @@ begin
     #(PERIOD*2) rst_n  =  1;
 end
 
-TinyCore  u_TinyCore (
+// -------------------- dut --------------------
+
+axi_lite_if #(64, 64) ibiu_axi_if();
+axi_lite_if #(64, 64) dbiu_axi_if();
+
+kiwi_subsys  u_kiwi_subsys (
     .clk                     ( clk     ),
-    .rst_n                   ( rst_n   )
+    .rst_n                   ( rst_n   ),
+    .ibiu_axi_if			 (ibiu_axi_if),
+    .dbiu_axi_if			 (dbiu_axi_if)
 );
+
+// -------------------- axi_lite_if --------------------
+
+axi_lite_slave_driver ibiu_axi_driver;
+axi_lite_slave_driver dbiu_axi_driver;
+
+initial begin
+    ibiu_axi_driver = new();
+    dbiu_axi_driver = new();
+    ibiu_axi_driver.set_if(ibiu_axi_if);
+    dbiu_axi_driver.set_if(dbiu_axi_if);
+    fork
+        ibiu_axi_driver.run();
+        dbiu_axi_driver.run();
+    join
+end
+
+// -------------------- init code and data memory --------------------
 
 bit[31:0] code_mem[1024*1024];
 bit[31:0] data_mem[1024*1024];
-bit[31:0] decoder_inst;
 
 // init code and data memory
 initial begin
 	$readmemh("../tests/programs/hello.text.hex", code_mem);
 	$readmemh("../tests/programs/hello.data.hex", data_mem);
 	$display("code initing to mem...");
-	for(int i=0; i<1024*1024; ++i) begin
-		u_TinyCore.itcm.mem[i] = code_mem[i];
-		u_TinyCore.dtcm.mem[i] = data_mem[i];
+	for(int i=0; i<1024*1024/2; i++) begin
+		ibiu_axi_driver.mem[i][31:0] = code_mem[i*2];
+		dbiu_axi_driver.mem[i][31:0] = data_mem[i*2];
+		ibiu_axi_driver.mem[i][63:32] = code_mem[i*2+1];
+		dbiu_axi_driver.mem[i][63:32] = data_mem[i*2+1];
 		//if(i<2000) begin
 		//	$display("code_mem[%0d] = %0h", i, u_TinyCore.itcm.mem[i]);
 		//	$display("data_mem[%0d] = %0h", i, u_TinyCore.dtcm.mem[i]);
@@ -80,17 +106,21 @@ initial begin
 	flush_cycle		= 0;
 
 	for(int i=0; i<64; ++i) begin
-		u_TinyCore.u_Regfile.registers[i] = 0;
+		u_kiwi_subsys.u_CPU.u_Operands.u_regfile.registers[i] = 0;
 	end
 end
 
-
 // sim finish control
-assign decoder_inst = u_TinyCore.u_Decoder.inst_o;
-
 always @(posedge clk) begin
-	if(u_TinyCore.u_Decoder.decoder_valid_o) begin
-		if(decoder_inst == 32'h0000_006b) begin
+	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst0_decoder_valid_o) begin
+		if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst0_decoder_inst_o == 32'h0000_006b) begin
+			cal_print_tma();
+			$display("--------------- sim finished ---------------");
+			$finish;
+		end
+	end
+	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst1_decoder_valid_o) begin
+		if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst1_decoder_inst_o == 32'h0000_006b) begin
 			cal_print_tma();
 			$display("--------------- sim finished ---------------");
 			$finish;
@@ -98,47 +128,47 @@ always @(posedge clk) begin
 	end
 end
 
-// TMA
-always @(posedge clk) begin
-	if(/* decode0_vld */) begin
-		instruction++;
-		if(/* backend_stall */) begin
-			backend_bound++;
-		end
-		else begin
-			frontend_bound++;
-		end
-	end
-	else begin
-		bubble++;
-	end
-	if(/* decode1_vld */) begin
-		instruction++;
-		if(/* backend_stall */) begin
-			backend_bound++;
-		end
-		else begin
-			frontend_bound++;
-		end
-	end
-	else begin
-		bubble++;
-	end
+// // TMA
+// always @(posedge clk) begin
+// 	if(/* decode0_vld */) begin
+// 		instruction++;
+// 		if(/* backend_stall */) begin
+// 			backend_bound++;
+// 		end
+// 		else begin
+// 			frontend_bound++;
+// 		end
+// 	end
+// 	else begin
+// 		bubble++;
+// 	end
+// 	if(/* decode1_vld */) begin
+// 		instruction++;
+// 		if(/* backend_stall */) begin
+// 			backend_bound++;
+// 		end
+// 		else begin
+// 			frontend_bound++;
+// 		end
+// 	end
+// 	else begin
+// 		bubble++;
+// 	end
 
-	if(/* flush_pipe */) begin
-		flush_cycle++;
-	end
+// 	if(/* flush_pipe */) begin
+// 		flush_cycle++;
+// 	end
 
-	if(/* retire0 */) begin
-		retire++;
-	end
-	if(/* retire1 */) begin
-		retire++;
-	end
+// 	if(/* retire0 */) begin
+// 		retire++;
+// 	end
+// 	if(/* retire1 */) begin
+// 		retire++;
+// 	end
 
-	total_slots = total_slots+2;
+// 	total_slots = total_slots+2;
 
-end
+// end
 
 
 //initial begin
