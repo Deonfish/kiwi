@@ -1,24 +1,29 @@
 module Scoreboard(
     input        clk,
     input        rst_n,
+    // to front end
+    output [0:0]                      flush_front_o,
+    output [63:0]                     flush_front_pc_o,
     // from decoder
-    input  [0:0] decoder_inst0_vld_i,
-    input  [5:0] decoder_inst0_exe_unit_i,
-    input  [4:0] decoder_inst0_rd_i,
-    input  [4:0] decoder_inst0_rs1_i,
-    input  [4:0] decoder_inst0_rs2_i,
-    input  [63:0] decoder_inst0_pc_i,
-    input  [31:0] decoder_inst0_inst_i,
-    input  [0:0] decoder_inst1_vld_i,
-    input  [5:0] decoder_inst1_exe_unit_i,
-    input  [4:0] decoder_inst1_rd_i,
-    input  [4:0] decoder_inst1_rs1_i,
-    input  [4:0] decoder_inst1_rs2_i,
-    input  [63:0] decoder_inst1_pc_i,
-    input  [31:0] decoder_inst1_inst_i,
+    input  [0:0]                      decoder_inst0_vld_i,
+    input  [5:0]                      decoder_inst0_exe_unit_i,
+    input  [4:0]                      decoder_inst0_rd_i,
+    input  [4:0]                      decoder_inst0_rs1_i,
+    input  [4:0]                      decoder_inst0_rs2_i,
+    input  [63:0]                     decoder_inst0_pc_i,
+    input  [31:0]                     decoder_inst0_inst_i,
+    input  [0:0]                      decoder_inst1_vld_i,
+    input  [5:0]                      decoder_inst1_exe_unit_i,
+    input  [4:0]                      decoder_inst1_rd_i,
+    input  [4:0]                      decoder_inst1_rs1_i,
+    input  [4:0]                      decoder_inst1_rs2_i,
+    input  [63:0]                     decoder_inst1_pc_i,
+    input  [31:0]                     decoder_inst1_inst_i,
     // to decoder
-    output [0:0] stall_decoder_inst0_o,
-    output [0:0] stall_decoder_inst1_o,
+    output [0:0]                      stall_decoder_inst0_o,
+    output [0:0]                      flush_decoder_inst0_o,
+    output [0:0]                      stall_decoder_inst1_o,
+    output [0:0]                      flush_decoder_inst1_o,
     output [`SCOREBOARD_SIZE_WIDTH:0] decoder_inst0_sid_o,
     output [`H_EXE_UNIT_WIDTH-1:0]    decoder_inst0_h_exe_unit_o,
     output [`SCOREBOARD_SIZE_WIDTH:0] decoder_inst1_sid_o,
@@ -36,17 +41,27 @@ module Scoreboard(
     input  [4:0]                      op_inst1_rs2_i,
     // to operands
     output [0:0]                      op_stall_inst0_o,
+    output [0:0]                      op_flush_inst0_o,
     output [0:0]                      op_stall_inst1_o,
+    output [0:0]                      op_flush_inst1_o,
     // from execute
     input  [0:0]                      alu0_exe_vld_i,
+    input  [`SCOREBOARD_SIZE_WIDTH:0] alu0_exe_sid_i;
     input  [0:0]                      alu1_exe_vld_i,
+    input  [`SCOREBOARD_SIZE_WIDTH:0] alu1_exe_sid_i;
     input  [0:0]                      beu_exe_vld_i,
+    input  [`SCOREBOARD_SIZE_WIDTH:0] beu_exe_sid_i;
     input  [0:0]                      lsu_exe_vld_i,
+    input  [`SCOREBOARD_SIZE_WIDTH:0] lsu_exe_sid_i;
     // to execute
     output [0:0]                      alu0_exe_stall_o,
+    output [0:0]                      alu0_exe_flush_o,
     output [0:0]                      alu1_exe_stall_o,
+    output [0:0]                      alu1_exe_flush_o,
     output [0:0]                      beu_exe_stall_o,
+    output [0:0]                      beu_exe_flush_o,
     output [0:0]                      lsu_exe_stall_o,
+    output [0:0]                      lsu_exe_flush_o,
     output [63:0]                     beu_exe_pc_o,
     output [31:0]                     beu_exe_inst_o,
     // from write back
@@ -62,8 +77,8 @@ module Scoreboard(
     // to write back
     output [0:0]                      wb_stall_inst0_o,
     output [0:0]                      wb_stall_inst1_o,
-    output [0:0]                      flush_wb_inst0_o,
-    output [0:0]                      flush_wb_inst1_o
+    output [0:0]                      wb_flush_inst0_o,
+    output [0:0]                      wb_flush_inst1_o
 );
 
     reg [63:0]                       scb_alu0_pc_r;
@@ -182,6 +197,16 @@ module Scoreboard(
         end
     end
 
+    assign flush_decoder_inst0_o = wb_redirect_i &&  
+                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == decoder_inst0_sid_o[`SCOREBOARD_SIZE_WIDTH] ?
+                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < decoder_inst0_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > decoder_inst0_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0];
+
+    assign flush_decoder_inst1_o = wb_redirect_i &&  
+                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == decoder_inst1_sid_o[`SCOREBOARD_SIZE_WIDTH] ?
+                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < decoder_inst1_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                                   wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > decoder_inst1_sid_o[`SCOREBOARD_SIZE_WIDTH-1:0];
+
     // ----------------- operands -----------------
 
     wire op_inst0_raw_alu0;
@@ -261,6 +286,16 @@ module Scoreboard(
     assign op_stall_inst0_o = op_inst0_raw;
     assign op_stall_inst1_o = op_inst1_raw;
 
+    assign op_flush_inst0_o = wb_redirect_i &&  
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == op_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < op_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > op_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+
+    assign op_flush_inst1_o = wb_redirect_i &&  
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == op_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < op_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > op_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+
     // ----------------- execute -----------------
 
     assign alu0_exe_stall_o = 1'b0;
@@ -270,6 +305,26 @@ module Scoreboard(
 
     assign beu_exe_pc_o = scb_beu_pc_r;
     assign beu_exe_inst_o = scb_beu_inst_r;
+
+    assign alu0_exe_flush_o = wb_redirect_i &&  
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == alu0_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < alu0_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > alu0_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+
+    assign alu1_exe_flush_o = wb_redirect_i &&  
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == alu1_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < alu1_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > alu1_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+
+    assign beu_exe_flush_o =  wb_redirect_i &&  
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == beu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < beu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > beu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+
+    assign lsu_exe_flush_o =  wb_redirect_i &&  
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == lsu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < lsu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > lsu_exe_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
 
     // ----------------- write back -----------------
 
@@ -345,6 +400,16 @@ module Scoreboard(
 
     assign wb_stall_inst0_o = wb_inst0_war;
     assign wb_stall_inst1_o = wb_inst1_war;
+
+    assign wb_flush_inst0_o = wb_redirect_i &&  
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == wb_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < wb_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > wb_inst0_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
+
+    assign wb_flush_inst1_o = wb_redirect_i &&  
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH] ?
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                              wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
 
     // ----------------- scoreboard -----------------
 
@@ -500,45 +565,47 @@ module Scoreboard(
         end
     end
 
-wire [63:0] wb_inst0_pc;
-wire [31:0] wb_inst0_inst;
-wire [63:0] wb_inst1_pc;
-wire [31:0] wb_inst1_inst;
+    wire [63:0] wb_inst0_pc;
+    wire [31:0] wb_inst0_inst;
+    wire [63:0] wb_inst1_pc;
+    wire [31:0] wb_inst1_inst;
 
-assign wb_inst0_pc = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_pc_r :
-                     wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu1_pc_r :
-                     wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_pc_r :
-                     wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_pc_r : 0;
+    assign wb_inst0_pc = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_pc_r :
+                        wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu1_pc_r :
+                        wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_pc_r :
+                        wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_pc_r : 0;
 
-assign wb_inst0_inst = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_inst_r :
-                       wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu1_inst_r :
-                       wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_inst_r :
-                       wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_inst_r : 0;
+    assign wb_inst0_inst = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_inst_r :
+                        wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu1_inst_r :
+                        wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_inst_r :
+                        wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_inst_r : 0;
 
-assign wb_inst1_pc = wb_inst1_sid_i == scb_alu0_sid_r ? scb_alu0_pc_r :
-                     wb_inst1_sid_i == scb_alu1_sid_r ? scb_alu1_pc_r :
-                     wb_inst1_sid_i == scb_beu_sid_r  ? scb_beu_pc_r :
-                     wb_inst1_sid_i == scb_lsu_sid_r  ? scb_lsu_pc_r : 0;
+    assign wb_inst1_pc = wb_inst1_sid_i == scb_alu0_sid_r ? scb_alu0_pc_r :
+                        wb_inst1_sid_i == scb_alu1_sid_r ? scb_alu1_pc_r :
+                        wb_inst1_sid_i == scb_beu_sid_r  ? scb_beu_pc_r :
+                        wb_inst1_sid_i == scb_lsu_sid_r  ? scb_lsu_pc_r : 0;
 
-assign wb_inst1_inst = wb_inst1_sid_i == scb_alu0_sid_r ? scb_alu0_inst_r :
-                       wb_inst1_sid_i == scb_alu1_sid_r ? scb_alu1_inst_r :
-                       wb_inst1_sid_i == scb_beu_sid_r  ? scb_beu_inst_r :
-                       wb_inst1_sid_i == scb_lsu_sid_r  ? scb_lsu_inst_r : 0;
+    assign wb_inst1_inst = wb_inst1_sid_i == scb_alu0_sid_r ? scb_alu0_inst_r :
+                        wb_inst1_sid_i == scb_alu1_sid_r ? scb_alu1_inst_r :
+                        wb_inst1_sid_i == scb_beu_sid_r  ? scb_beu_inst_r :
+                        wb_inst1_sid_i == scb_lsu_sid_r  ? scb_lsu_inst_r : 0;
 
-InstMonitor u_instMonitor0 (
-	.clk(clk),
-	.inst_valid_i(wb_inst0_vld_i && !wb_stall_inst0_o),
-	.inst_pc_i(wb_inst0_pc),
-	.inst_i(wb_inst0_inst),
-	.inst_sid(wb_inst0_sid_i)
-);
+    // ----------------- instMonitor -----------------
 
-InstMonitor u_instMonitor1 (
-	.clk(clk),
-	.inst_valid_i(wb_inst1_vld_i && !wb_stall_inst1_o),
-	.inst_pc_i(wb_inst1_pc),
-	.inst_i(wb_inst1_inst),
-	.inst_sid(wb_inst1_sid_i)
-);
+    InstMonitor u_instMonitor0 (
+        .clk(clk),
+        .inst_valid_i(wb_inst0_vld_i && !wb_stall_inst0_o),
+        .inst_pc_i(wb_inst0_pc),
+        .inst_i(wb_inst0_inst),
+        .inst_sid(wb_inst0_sid_i)
+    );
+
+    InstMonitor u_instMonitor1 (
+        .clk(clk),
+        .inst_valid_i(wb_inst1_vld_i && !wb_stall_inst1_o),
+        .inst_pc_i(wb_inst1_pc),
+        .inst_i(wb_inst1_inst),
+        .inst_sid(wb_inst1_sid_i)
+    );
 
 endmodule

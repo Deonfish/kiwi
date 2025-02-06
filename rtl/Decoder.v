@@ -6,7 +6,8 @@ module Decoder (
 	input stall_decoder_inst0_i,
 	input stall_decoder_inst1_i,
 	// flush from wb
-	input flush_decoder_i,
+	input flush_decoder_inst0_i,
+	input flush_decoder_inst1_i,
 	// from instQueue
 	input [0:0]   inst0_f1_valid_i,
 	input [63:0]  inst0_f1_pc_i,
@@ -104,11 +105,11 @@ wire [0:0] inst1_decoder_endsim;
 wire [0:0] inst1_decoder_auipc;
 
 assign inst0_decoder_valid_pre_o = inst0_decoder_valid_r;
-assign inst0_decoder_valid_o = inst0_decoder_valid_pre_o & !(stall_decoder_inst0_i | flush_decoder_i);
+assign inst0_decoder_valid_o = inst0_decoder_valid_pre_o & !(stall_decoder_inst0_i | flush_decoder_inst0_i);
 assign inst0_decoder_pc_o = inst0_decoder_pc_r;
 assign inst0_decoder_inst_o = inst0_decoder_inst_r;
 assign inst1_decoder_valid_pre_o = inst1_decoder_valid_r;
-assign inst1_decoder_valid_o = inst1_decoder_valid_pre_o & !(stall_decoder_inst1_i | flush_decoder_i);
+assign inst1_decoder_valid_o = inst1_decoder_valid_pre_o & !(stall_decoder_inst1_i | flush_decoder_inst1_i);
 assign inst1_decoder_pc_o = inst1_decoder_pc_r;
 assign inst1_decoder_inst_o = inst1_decoder_inst_r;
 
@@ -118,7 +119,7 @@ always @(posedge clk or negedge rst_n) begin
 		inst0_decoder_pc_r 		<= 64'h0;
 		inst0_decoder_inst_r 	<= 32'h0;
 	end
-	else if(flush_decoder_i) begin
+	else if(flush_decoder_inst0_i) begin
 		inst0_decoder_valid_r 	<= 1'b0;
 		inst0_decoder_pc_r 		<= 64'h0;
 		inst0_decoder_inst_r 	<= 32'h0;
@@ -139,7 +140,7 @@ always @(posedge clk or negedge rst_n) begin
 		inst1_decoder_pc_r 		<= 64'h0;
 		inst1_decoder_inst_r 	<= 32'h0;
 	end
-	else if(flush_decoder_i) begin
+	else if(flush_decoder_inst1_i) begin
 		inst1_decoder_valid_r 	<= 1'b0;
 		inst1_decoder_pc_r 		<= 64'h0;
 		inst1_decoder_inst_r 	<= 32'h0;

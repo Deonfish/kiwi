@@ -5,7 +5,8 @@ module Operands(
 	input stall_operands_inst0_i,
 	input stall_operands_inst1_i,
 	// flush from wb
-	input flush_operands_i,
+	input flush_operands_inst0_i,
+	input flush_operands_inst1_i,
 	// from decoder
 	input [0:0]                      inst0_decoder_valid_i,
 	input [0:0]                      inst0_decoder_rs1_valid_i,
@@ -131,7 +132,7 @@ always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         inst0_operands_valid_r <= 0;
     end
-    else if(flush_operands_i) begin
+    else if(flush_operands_inst0_i) begin
         inst0_operands_valid_r <= 0;
     end
     else if(!stall_operands_inst0_i) begin
@@ -158,7 +159,7 @@ always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         inst1_operands_valid_r <= 0;
     end
-    else if(flush_operands_i) begin
+    else if(flush_operands_inst1_i) begin
         inst1_operands_valid_r <= 0;
     end
     else if(!stall_operands_inst1_i) begin

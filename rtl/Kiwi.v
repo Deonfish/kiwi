@@ -62,6 +62,10 @@ wire [31:0] iq0_inst;
 wire [0:0] iq1_vld;
 wire [63:0] iq1_pc;
 wire [31:0] iq1_inst;
+
+wire [0:0] flush_front;
+wire [63:0] flush_front_pc;
+
 wire [0:0] inst0_decoder_valid_pre;
 wire [0:0] inst0_decoder_valid;
 wire [63:0] inst0_decoder_pc;
@@ -296,8 +300,14 @@ wire [63:0] wb_inst1_rd_value;
 wire [31:0] wb_inst1_inst;
 wire [4:0] 	wb_inst1_rd;
 
+wire [0:0] wb_stall_inst0;
+wire [0:0] wb_stall_inst1;
+wire [0:0] wb_flush_inst0;
+wire [0:0] wb_flush_inst1;
+
 wire [0:0] wb_redirect;
 wire [63:0] wb_redirect_pc;
+wire [`SCOREBOARD_SIZE_WIDTH:0] wb_redirect_sid;
 
 assign reset_vec = 64'h0;
 
@@ -306,8 +316,8 @@ Fetch0 u_Fetch0 (
 	.rst_n(rst_n),
 	.reset_vec(reset_vec),
     // flush from wb
-	.redir_i(wb_redirect),
-	.redir_pc_i(wb_redirect_pc),
+	.redir_i(flush_front),
+	.redir_pc_i(flush_front_pc),
     // stall from instQueue
 	.stall_f0_i(instq_full || stall_f0),
     // to Icache
@@ -336,7 +346,7 @@ Icache u_Icache (
     // stall from instQueue
 	.stall_icache_i(instq_full),
     // squash from backend
-	.squash_pipe_i(wb_redirect)
+	.squash_pipe_i(flush_front)
 );
 
 BIU u_IBIU (
@@ -404,7 +414,7 @@ InstQueue u_InstQueue (
     // stall from backend
 	.stall_iq_i(stall_decoder_inst0 | stall_decoder_inst1),
     // squash from backend
-	.flush_iq_i(wb_redirect)
+	.flush_iq_i(flush_front)
 );
 
 Decoder u_Decoder (
@@ -414,7 +424,8 @@ Decoder u_Decoder (
 	.stall_decoder_inst0_i(stall_decoder_inst0),
 	.stall_decoder_inst1_i(stall_decoder_inst1),
     // flush from wb
-	.flush_decoder_i(wb_redirect),
+	.flush_decoder_inst0_i(flush_decoder_inst0),
+	.flush_decoder_inst1_i(flush_decoder_inst1),
     // from instQueue
 	.inst0_f1_valid_i(iq0_vld),
 	.inst0_f1_pc_i(iq0_pc),
@@ -468,7 +479,8 @@ Operands u_Operands (
 	.stall_operands_inst0_i        (op_stall_inst0),
 	.stall_operands_inst1_i        (op_stall_inst1),
 	// flush from wb
-	.flush_operands_i              (wb_redirect),
+	.flush_operands_inst0_i        (op_flush_inst0),
+	.flush_operands_inst1_i        (op_flush_inst1),
 	// from decoder
 	.inst0_decoder_valid_i         (inst0_decoder_valid),
 	.inst0_decoder_rs1_valid_i     (inst0_decoder_rs1_valid),
@@ -675,7 +687,7 @@ ALU u_ALU0 (
 	.clk                  (clk),
 	.rst_n                (rst_n),
 	// flush
-	.flush_i              (wb_redirect),
+	.flush_i              (alu0_exe_flush),
 	// from operands
 	.alu_valid_i          (alu0_op_valid),
 	.alu_func3_i          (alu0_op_func3), 
@@ -698,7 +710,7 @@ ALU u_ALU1 (
 	.clk                  (clk),
 	.rst_n                (rst_n),
 	// flush
-	.flush_i              (wb_redirect),
+	.flush_i              (alu1_exe_flush),
 	// from operands
 	.alu_valid_i          (alu1_op_valid),
 	.alu_func3_i          (alu1_op_func3),
@@ -721,7 +733,7 @@ BEU u_BEU (
     .clk                    (clk),
     .rst_n                  (rst_n),
 	// flush
-	.flush_i                (wb_redirect),
+	.flush_i                (beu_exe_flush),
     // from operands
     .branch_valid_i         (beu_op_valid),
     .branch_pc_i            (beu_op_pc),
@@ -741,7 +753,7 @@ LSU u_LSU (
 	.clk                         (clk),
 	.rst_n                       (rst_n),
 	.stall_lsu_i                 (lsu_exe_stall),
-	.flush_lsu_i                 (wb_redirect),
+	.flush_lsu_i                 (lsu_exe_flush),
 	// from operands
 	.lsu_valid_i                 (lsu_op_valid),
 	.lsu_pc_i                    (lsu_op_pc),
@@ -883,6 +895,9 @@ WriteBack u_WriteBack (
     // to wb
     .stall_inst0_wb_i          (wb_stall_inst0),
     .stall_inst1_wb_i          (wb_stall_inst1),
+    .flush_inst0_wb_i          (wb_flush_inst0),
+    .flush_inst1_wb_i          (wb_flush_inst1),
+
     .inst0_wb_valid_o          (wb_inst0_valid),
     .inst0_wb_rd_o             (wb_inst0_rd),
     .inst0_wb_value_o          (wb_inst0_rd_value),
@@ -894,12 +909,16 @@ WriteBack u_WriteBack (
     .inst1_wb_inst_o           (wb_inst1_inst),
     .inst1_wb_sid_o            (wb_inst1_sid),
     .wb_redirect_o             (wb_redirect),
-    .wb_redirect_pc_o          (wb_redirect_pc)
+    .wb_redirect_pc_o          (wb_redirect_pc),
+    .wb_redirect_sid_o         (wb_redirect_sid)
 );
 
 Scoreboard u_Scoreboard (
     .clk                        (clk),
     .rst_n                      (rst_n),
+    // to front end
+    .flush_front_o              (flush_front),
+    .flush_front_pc_o           (flush_front_pc),
     // from decoder
     .decoder_inst0_vld_i        (inst0_decoder_valid_pre),
     .decoder_inst0_exe_unit_i   (inst0_decoder_exe_unit),
@@ -917,7 +936,9 @@ Scoreboard u_Scoreboard (
     .decoder_inst1_inst_i       (inst1_decoder_inst),
     // to decoder
     .stall_decoder_inst0_o      (stall_decoder_inst0),
+    .flush_decoder_inst0_o      (flush_decoder_inst0),
     .stall_decoder_inst1_o      (stall_decoder_inst1),
+    .flush_decoder_inst1_o      (flush_decoder_inst1),
     .decoder_inst0_sid_o        (inst0_decoder_sid),
     .decoder_inst1_sid_o        (inst1_decoder_sid),
     .decoder_inst0_h_exe_unit_o (inst0_decoder_h_exe_unit),
@@ -935,17 +956,27 @@ Scoreboard u_Scoreboard (
     .op_inst1_rs2_i            (inst1_operands_rs2),
     // to operands
     .op_stall_inst0_o          (op_stall_inst0),
+    .op_flush_inst0_o          (op_flush_inst0),
     .op_stall_inst1_o          (op_stall_inst1),
+    .op_flush_inst1_o          (op_flush_inst1),
     // from execute
     .alu0_exe_vld_i            (alu0_exe_valid),
+    .alu0_exe_sid_i            (alu0_exe_sid),
     .alu1_exe_vld_i            (alu1_exe_valid),
+    .alu1_exe_sid_i            (alu1_exe_sid),
     .beu_exe_vld_i             (beu_exe_valid),
+    .beu_exe_sid_i             (beu_exe_sid),
     .lsu_exe_vld_i             (lsu_exe_valid),
+    .lsu_exe_sid_i             (lsu_exe_sid),
     // to execute
     .alu0_exe_stall_o          (alu0_exe_stall),
+    .alu0_exe_flush_o          (alu0_exe_flush),
     .alu1_exe_stall_o          (alu1_exe_stall),
+    .alu1_exe_flush_o          (alu1_exe_flush),
     .beu_exe_stall_o           (beu_exe_stall),
+    .beu_exe_flush_o           (beu_exe_flush),
     .lsu_exe_stall_o           (lsu_exe_stall),
+    .lsu_exe_flush_o           (lsu_exe_flush),
     .beu_exe_pc_o              (beu_op_pc),
     .beu_exe_inst_o            (beu_op_inst),
     // from write back
@@ -955,9 +986,14 @@ Scoreboard u_Scoreboard (
     .wb_inst1_vld_i            (wb_inst1_valid),
     .wb_inst1_sid_i            (wb_inst1_sid),
     .wb_inst1_rd_i             (wb_inst1_rd),
+    .wb_redirect_i             (wb_redirect),
+    .wb_redirect_pc_i          (wb_redirect_pc),
+    .wb_redirect_sid_i         (wb_redirect_sid),
     // to write back
     .wb_stall_inst0_o          (wb_stall_inst0),
-    .wb_stall_inst1_o          (wb_stall_inst1)
+    .wb_stall_inst1_o          (wb_stall_inst1),
+    .wb_flush_inst0_o          (wb_flush_inst0),
+    .wb_flush_inst1_o          (wb_flush_inst1)
 );
 
 endmodule
