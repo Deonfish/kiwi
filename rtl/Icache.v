@@ -109,15 +109,21 @@ always @(*) begin
             end
         end
         TAG: begin
+            if(squash_pipe_i) begin
+                next_state = IDLE;
+            end
             if(!hit && icache_miss_ready_i) begin
                 next_state = MISS;
             end
-            else if(squash_pipe_i || hit && !f0_valid_i) begin
+            else if(hit && !f0_valid_i) begin
                 next_state = IDLE;
             end
         end
         MISS: begin
-            if(hit_refill) begin
+            if(squash_pipe_i) begin
+                next_state = IDLE;
+            end
+            else if(hit_refill) begin
                 next_state = TAG;
             end
         end
