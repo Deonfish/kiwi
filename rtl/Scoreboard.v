@@ -137,6 +137,11 @@ module Scoreboard(
     wire inst1_wr_scb;
     wire inst1_waw_inst0;
 
+    wire flush_alu0;
+    wire flush_alu1;
+    wire flush_beu;
+    wire flush_lsu;
+
     // ----------------- decoder -----------------
 
     assign inst0_sel_alu0 = decoder_inst0_vld_i && decoder_inst0_exe_unit_i[`RV_ALU];
@@ -411,11 +416,34 @@ module Scoreboard(
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] :
                               wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > wb_inst1_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0];
 
+    assign flush_alu0 = wb_redirect_i &&
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_alu0_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_alu0_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_alu0_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0];
+
+    assign flush_alu1 = wb_redirect_i &&
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_alu1_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_alu1_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_alu1_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0];
+
+    assign flush_beu =  wb_redirect_i &&
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_beu_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_beu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_beu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0];
+
+    assign flush_lsu =  wb_redirect_i &&
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == scb_lsu_sid_r[`SCOREBOARD_SIZE_WIDTH] ?
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] < scb_lsu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0] :
+                        wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH-1:0] > scb_lsu_sid_r[`SCOREBOARD_SIZE_WIDTH-1:0];
+
     // ----------------- scoreboard -----------------
 
     // write alu0
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
+            scb_alu0_busy_r <= 0;
+        end
+        else if(flush_alu0) begin
             scb_alu0_busy_r <= 0;
         end
         else if(inst0_wr_alu0) begin
@@ -456,6 +484,9 @@ module Scoreboard(
         if (!rst_n) begin
             scb_alu1_busy_r <= 0;
         end
+        else if(flush_alu1) begin
+            scb_alu1_busy_r <= 0;
+        end
         else if(inst0_wr_alu1) begin
             scb_alu1_busy_r <= 1;
             scb_alu1_rd_r <= decoder_inst0_rd_i;
@@ -494,6 +525,9 @@ module Scoreboard(
         if (!rst_n) begin
             scb_beu_busy_r <= 0;
         end
+        else if(flush_beu) begin
+            scb_beu_busy_r <= 0;
+        end
         else if(inst0_wr_beu) begin
             scb_beu_busy_r <= 1;
             scb_beu_rd_r <= decoder_inst0_rd_i;
@@ -530,6 +564,9 @@ module Scoreboard(
     // write lsu
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
+            scb_lsu_busy_r <= 0;
+        end
+        else if(flush_lsu) begin
             scb_lsu_busy_r <= 0;
         end
         else if(inst0_wr_lsu) begin
