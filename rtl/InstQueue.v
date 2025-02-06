@@ -104,6 +104,9 @@ always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         wptr <= 'b0;
     end
+    else if(flush_iq_i) begin
+        wptr <= 'b0;
+    end
     else if(icache_valid_i && !instq_full_o) begin
         wptr <= wptr_next;
     end
@@ -115,6 +118,9 @@ assign wptr_val = wptr[DEPTH_WIDTH-1:0];
 // rptr
 always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
+        rptr <= 'b0;
+    end
+    else if(flush_iq_i) begin
         rptr <= 'b0;
     end
     else if(iq0_vld_o && iq1_vld_o && !stall_iq_i) begin
