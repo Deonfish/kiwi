@@ -52,39 +52,41 @@ wire                   rptr_hi;
 wire [DEPTH_WIDTH-1:0] rptr_val;
 wire [DEPTH_WIDTH-1:0] rptr_val_add1;
 
-wire [63:0] winst_pc0;
-wire [63:0] winst_pc1;
-wire [63:0] winst_pc2;
-wire [63:0] winst_pc3;
-wire [63:0] winst_pc4;
-wire [63:0] winst_pc5;
-wire [63:0] winst_pc6;
-wire [63:0] winst_pc7;
-wire [63:0] winst_pc8;
-wire [63:0] winst_pc9;
-wire [63:0] winst_pc10;
-wire [63:0] winst_pc11;
-wire [63:0] winst_pc12;
-wire [63:0] winst_pc13;
-wire [63:0] winst_pc14;
-wire [63:0] winst_pc15;
+reg [63:0] winst_pc0;
+reg [63:0] winst_pc1;
+reg [63:0] winst_pc2;
+reg [63:0] winst_pc3;
+reg [63:0] winst_pc4;
+reg [63:0] winst_pc5;
+reg [63:0] winst_pc6;
+reg [63:0] winst_pc7;
+reg [63:0] winst_pc8;
+reg [63:0] winst_pc9;
+reg [63:0] winst_pc10;
+reg [63:0] winst_pc11;
+reg [63:0] winst_pc12;
+reg [63:0] winst_pc13;
+reg [63:0] winst_pc14;
+reg [63:0] winst_pc15;
 
-wire [31:0] winst0;
-wire [31:0] winst1;
-wire [31:0] winst2;
-wire [31:0] winst3;
-wire [31:0] winst4;
-wire [31:0] winst5;
-wire [31:0] winst6;
-wire [31:0] winst7;
-wire [31:0] winst8;
-wire [31:0] winst9;
-wire [31:0] winst10;
-wire [31:0] winst11;
-wire [31:0] winst12;
-wire [31:0] winst13;
-wire [31:0] winst14;
-wire [31:0] winst15;
+reg [31:0] winst0;
+reg [31:0] winst1;
+reg [31:0] winst2;
+reg [31:0] winst3;
+reg [31:0] winst4;
+reg [31:0] winst5;
+reg [31:0] winst6;
+reg [31:0] winst7;
+reg [31:0] winst8;
+reg [31:0] winst9;
+reg [31:0] winst10;
+reg [31:0] winst11;
+reg [31:0] winst12;
+reg [31:0] winst13;
+reg [31:0] winst14;
+reg [31:0] winst15;
+
+wire [15:0] write_vector;
 
 wire [31:0] winstq_data[DEPTH-1:0];
 wire [63:0] winstq_pc[DEPTH-1:0];
@@ -134,39 +136,619 @@ always @(posedge clk) begin
     end
 end
 
-assign winst_pc0  = icache_pc_i + 4*0 ;
-assign winst_pc1  = icache_pc_i + 4*1 ;
-assign winst_pc2  = icache_pc_i + 4*2 ;
-assign winst_pc3  = icache_pc_i + 4*3 ;
-assign winst_pc4  = icache_pc_i + 4*4 ;
-assign winst_pc5  = icache_pc_i + 4*5 ;
-assign winst_pc6  = icache_pc_i + 4*6 ;
-assign winst_pc7  = icache_pc_i + 4*7 ;
-assign winst_pc8  = icache_pc_i + 4*8 ;
-assign winst_pc9  = icache_pc_i + 4*9 ;
-assign winst_pc10 = icache_pc_i + 4*10;
-assign winst_pc11 = icache_pc_i + 4*11;
-assign winst_pc12 = icache_pc_i + 4*12;
-assign winst_pc13 = icache_pc_i + 4*13;
-assign winst_pc14 = icache_pc_i + 4*14;
-assign winst_pc15 = icache_pc_i + 4*15;
+// assign winst_pc0  = icache_pc_i + 4*0 ;
+// assign winst_pc1  = icache_pc_i + 4*1 ;
+// assign winst_pc2  = icache_pc_i + 4*2 ;
+// assign winst_pc3  = icache_pc_i + 4*3 ;
+// assign winst_pc4  = icache_pc_i + 4*4 ;
+// assign winst_pc5  = icache_pc_i + 4*5 ;
+// assign winst_pc6  = icache_pc_i + 4*6 ;
+// assign winst_pc7  = icache_pc_i + 4*7 ;
+// assign winst_pc8  = icache_pc_i + 4*8 ;
+// assign winst_pc9  = icache_pc_i + 4*9 ;
+// assign winst_pc10 = icache_pc_i + 4*10;
+// assign winst_pc11 = icache_pc_i + 4*11;
+// assign winst_pc12 = icache_pc_i + 4*12;
+// assign winst_pc13 = icache_pc_i + 4*13;
+// assign winst_pc14 = icache_pc_i + 4*14;
+// assign winst_pc15 = icache_pc_i + 4*15;
 
-assign winst0 = icache_data_i[0*32+:32];
-assign winst1 = icache_data_i[1*32+:32];
-assign winst2 = icache_data_i[2*32+:32];
-assign winst3 = icache_data_i[3*32+:32];
-assign winst4 = icache_data_i[4*32+:32];
-assign winst5 = icache_data_i[5*32+:32];
-assign winst6 = icache_data_i[6*32+:32];
-assign winst7 = icache_data_i[7*32+:32];
-assign winst8 = icache_data_i[8*32+:32];
-assign winst9 = icache_data_i[9*32+:32];
-assign winst10 = icache_data_i[10*32+:32];
-assign winst11 = icache_data_i[11*32+:32];
-assign winst12 = icache_data_i[12*32+:32];
-assign winst13 = icache_data_i[13*32+:32];
-assign winst14 = icache_data_i[14*32+:32];
-assign winst15 = icache_data_i[15*32+:32];
+// assign winst0 = icache_data_i[0*32+:32];
+// assign winst1 = icache_data_i[1*32+:32];
+// assign winst2 = icache_data_i[2*32+:32];
+// assign winst3 = icache_data_i[3*32+:32];
+// assign winst4 = icache_data_i[4*32+:32];
+// assign winst5 = icache_data_i[5*32+:32];
+// assign winst6 = icache_data_i[6*32+:32];
+// assign winst7 = icache_data_i[7*32+:32];
+// assign winst8 = icache_data_i[8*32+:32];
+// assign winst9 = icache_data_i[9*32+:32];
+// assign winst10 = icache_data_i[10*32+:32];
+// assign winst11 = icache_data_i[11*32+:32];
+// assign winst12 = icache_data_i[12*32+:32];
+// assign winst13 = icache_data_i[13*32+:32];
+// assign winst14 = icache_data_i[14*32+:32];
+// assign winst15 = icache_data_i[15*32+:32];
+
+assign write_vector[0]  = 1'b1;
+assign write_vector[1]  = icache_pc_i[5:2] <= 4'he;
+assign write_vector[2]  = icache_pc_i[5:2] <= 4'hd;
+assign write_vector[3]  = icache_pc_i[5:2] <= 4'hc;
+assign write_vector[4]  = icache_pc_i[5:2] <= 4'hb;
+assign write_vector[5]  = icache_pc_i[5:2] <= 4'ha;
+assign write_vector[6]  = icache_pc_i[5:2] <= 4'h9;
+assign write_vector[7]  = icache_pc_i[5:2] <= 4'h8;
+assign write_vector[8]  = icache_pc_i[5:2] <= 4'h7;
+assign write_vector[9]  = icache_pc_i[5:2] <= 4'h6;
+assign write_vector[10] = icache_pc_i[5:2] <= 4'h5;
+assign write_vector[11] = icache_pc_i[5:2] <= 4'h4;
+assign write_vector[12] = icache_pc_i[5:2] <= 4'h3;
+assign write_vector[13] = icache_pc_i[5:2] <= 4'h2;
+assign write_vector[14] = icache_pc_i[5:2] <= 4'h1;
+assign write_vector[15] = icache_pc_i[5:2] <= 4'h0;
+
+always @(*) begin
+    if(icache_pc_i[5:2]==4'h0) begin
+        winst0  = icache_data_i[0*32+:32] ;
+        winst1  = icache_data_i[1*32+:32] ;
+        winst2  = icache_data_i[2*32+:32] ;
+        winst3  = icache_data_i[3*32+:32] ;
+        winst4  = icache_data_i[4*32+:32] ;
+        winst5  = icache_data_i[5*32+:32] ;
+        winst6  = icache_data_i[6*32+:32] ;
+        winst7  = icache_data_i[7*32+:32] ;
+        winst8  = icache_data_i[8*32+:32] ;
+        winst9  = icache_data_i[9*32+:32] ;
+        winst10 = icache_data_i[10*32+:32];
+        winst11 = icache_data_i[11*32+:32];
+        winst12 = icache_data_i[12*32+:32];
+        winst13 = icache_data_i[13*32+:32];
+        winst14 = icache_data_i[14*32+:32];
+        winst15 = icache_data_i[15*32+:32];
+
+        winst_pc0  = icache_pc_i + 4*0 ;
+        winst_pc1  = icache_pc_i + 4*1 ;
+        winst_pc2  = icache_pc_i + 4*2 ;
+        winst_pc3  = icache_pc_i + 4*3 ;
+        winst_pc4  = icache_pc_i + 4*4 ;
+        winst_pc5  = icache_pc_i + 4*5 ;
+        winst_pc6  = icache_pc_i + 4*6 ;
+        winst_pc7  = icache_pc_i + 4*7 ;
+        winst_pc8  = icache_pc_i + 4*8 ;
+        winst_pc9  = icache_pc_i + 4*9 ;
+        winst_pc10 = icache_pc_i + 4*10;
+        winst_pc11 = icache_pc_i + 4*11;
+        winst_pc12 = icache_pc_i + 4*12;
+        winst_pc13 = icache_pc_i + 4*13;
+        winst_pc14 = icache_pc_i + 4*14;
+        winst_pc15 = icache_pc_i + 4*15;
+    end
+    else if(icache_pc_i[5:2]==4'h1) begin
+        winst0  = icache_data_i[1*32+:32] ;
+        winst1  = icache_data_i[2*32+:32] ;
+        winst2  = icache_data_i[3*32+:32] ;
+        winst3  = icache_data_i[4*32+:32] ;
+        winst4  = icache_data_i[5*32+:32] ;
+        winst5  = icache_data_i[6*32+:32] ;
+        winst6  = icache_data_i[7*32+:32] ;
+        winst7  = icache_data_i[8*32+:32] ;
+        winst8  = icache_data_i[9*32+:32] ;
+        winst9  = icache_data_i[10*32+:32];
+        winst10 = icache_data_i[11*32+:32];
+        winst11 = icache_data_i[12*32+:32];
+        winst12 = icache_data_i[13*32+:32];
+        winst13 = icache_data_i[14*32+:32];
+        winst14 = icache_data_i[15*32+:32];
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*1 ;
+        winst_pc1  = icache_pc_i + 4*2 ;
+        winst_pc2  = icache_pc_i + 4*3 ;
+        winst_pc3  = icache_pc_i + 4*4 ;
+        winst_pc4  = icache_pc_i + 4*5 ;
+        winst_pc5  = icache_pc_i + 4*6 ;
+        winst_pc6  = icache_pc_i + 4*7 ;
+        winst_pc7  = icache_pc_i + 4*8 ;
+        winst_pc8  = icache_pc_i + 4*9 ;
+        winst_pc9  = icache_pc_i + 4*10;
+        winst_pc10 = icache_pc_i + 4*11;
+        winst_pc11 = icache_pc_i + 4*12;
+        winst_pc12 = icache_pc_i + 4*13;
+        winst_pc13 = icache_pc_i + 4*14;
+        winst_pc14 = icache_pc_i + 4*15;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'h2) begin
+        winst0  = icache_data_i[2*32+:32] ;
+        winst1  = icache_data_i[3*32+:32] ;
+        winst2  = icache_data_i[4*32+:32] ;
+        winst3  = icache_data_i[5*32+:32] ;
+        winst4  = icache_data_i[6*32+:32] ;
+        winst5  = icache_data_i[7*32+:32] ;
+        winst6  = icache_data_i[8*32+:32] ;
+        winst7  = icache_data_i[9*32+:32] ;
+        winst8  = icache_data_i[10*32+:32];
+        winst9  = icache_data_i[11*32+:32];
+        winst10 = icache_data_i[12*32+:32];
+        winst11 = icache_data_i[13*32+:32];
+        winst12 = icache_data_i[14*32+:32];
+        winst13 = icache_data_i[15*32+:32];
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*2 ;
+        winst_pc1  = icache_pc_i + 4*3 ;
+        winst_pc2  = icache_pc_i + 4*4 ;
+        winst_pc3  = icache_pc_i + 4*5 ;
+        winst_pc4  = icache_pc_i + 4*6 ;
+        winst_pc5  = icache_pc_i + 4*7 ;
+        winst_pc6  = icache_pc_i + 4*8 ;
+        winst_pc7  = icache_pc_i + 4*9 ;
+        winst_pc8  = icache_pc_i + 4*10;
+        winst_pc9  = icache_pc_i + 4*11;
+        winst_pc10 = icache_pc_i + 4*12;
+        winst_pc11 = icache_pc_i + 4*13;
+        winst_pc12 = icache_pc_i + 4*14;
+        winst_pc13 = icache_pc_i + 4*15;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'h3) begin
+        winst0  = icache_data_i[3*32+:32] ;
+        winst1  = icache_data_i[4*32+:32] ;
+        winst2  = icache_data_i[5*32+:32] ;
+        winst3  = icache_data_i[6*32+:32] ;
+        winst4  = icache_data_i[7*32+:32] ;
+        winst5  = icache_data_i[8*32+:32] ;
+        winst6  = icache_data_i[9*32+:32] ;
+        winst7  = icache_data_i[10*32+:32];
+        winst8  = icache_data_i[11*32+:32];
+        winst9  = icache_data_i[12*32+:32];
+        winst10 = icache_data_i[13*32+:32];
+        winst11 = icache_data_i[14*32+:32];
+        winst12 = icache_data_i[15*32+:32];
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*3 ;
+        winst_pc1  = icache_pc_i + 4*4 ;
+        winst_pc2  = icache_pc_i + 4*5 ;
+        winst_pc3  = icache_pc_i + 4*6 ;
+        winst_pc4  = icache_pc_i + 4*7 ;
+        winst_pc5  = icache_pc_i + 4*8 ;
+        winst_pc6  = icache_pc_i + 4*9 ;
+        winst_pc7  = icache_pc_i + 4*10;
+        winst_pc8  = icache_pc_i + 4*11;
+        winst_pc9  = icache_pc_i + 4*12;
+        winst_pc10 = icache_pc_i + 4*13;
+        winst_pc11 = icache_pc_i + 4*14;
+        winst_pc12 = icache_pc_i + 4*15;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'h4) begin
+        winst0  = icache_data_i[4*32+:32] ;
+        winst1  = icache_data_i[5*32+:32] ;
+        winst2  = icache_data_i[6*32+:32] ;
+        winst3  = icache_data_i[7*32+:32] ;
+        winst4  = icache_data_i[8*32+:32] ;
+        winst5  = icache_data_i[9*32+:32] ;
+        winst6  = icache_data_i[10*32+:32];
+        winst7  = icache_data_i[11*32+:32];
+        winst8  = icache_data_i[12*32+:32];
+        winst9  = icache_data_i[13*32+:32];
+        winst10 = icache_data_i[14*32+:32];
+        winst11 = icache_data_i[15*32+:32];
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*4 ;
+        winst_pc1  = icache_pc_i + 4*5 ;
+        winst_pc2  = icache_pc_i + 4*6 ;
+        winst_pc3  = icache_pc_i + 4*7 ;
+        winst_pc4  = icache_pc_i + 4*8 ;
+        winst_pc5  = icache_pc_i + 4*9 ;
+        winst_pc6  = icache_pc_i + 4*10;
+        winst_pc7  = icache_pc_i + 4*11;
+        winst_pc8  = icache_pc_i + 4*12;
+        winst_pc9  = icache_pc_i + 4*13;
+        winst_pc10 = icache_pc_i + 4*14;
+        winst_pc11 = icache_pc_i + 4*15;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'h5) begin
+        winst0  = icache_data_i[5*32+:32] ;
+        winst1  = icache_data_i[6*32+:32] ;
+        winst2  = icache_data_i[7*32+:32] ;
+        winst3  = icache_data_i[8*32+:32] ;
+        winst4  = icache_data_i[9*32+:32] ;
+        winst5  = icache_data_i[10*32+:32];
+        winst6  = icache_data_i[11*32+:32];
+        winst7  = icache_data_i[12*32+:32];
+        winst8  = icache_data_i[13*32+:32];
+        winst9  = icache_data_i[14*32+:32];
+        winst10 = icache_data_i[15*32+:32];
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*5 ;
+        winst_pc1  = icache_pc_i + 4*6 ;
+        winst_pc2  = icache_pc_i + 4*7 ;
+        winst_pc3  = icache_pc_i + 4*8 ;
+        winst_pc4  = icache_pc_i + 4*9 ;
+        winst_pc5  = icache_pc_i + 4*10;
+        winst_pc6  = icache_pc_i + 4*11;
+        winst_pc7  = icache_pc_i + 4*12;
+        winst_pc8  = icache_pc_i + 4*13;
+        winst_pc9  = icache_pc_i + 4*14;
+        winst_pc10 = icache_pc_i + 4*15;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'h6) begin
+        winst0  = icache_data_i[6*32+:32] ;
+        winst1  = icache_data_i[7*32+:32] ;
+        winst2  = icache_data_i[8*32+:32] ;
+        winst3  = icache_data_i[9*32+:32] ;
+        winst4  = icache_data_i[10*32+:32];
+        winst5  = icache_data_i[11*32+:32];
+        winst6  = icache_data_i[12*32+:32];
+        winst7  = icache_data_i[13*32+:32];
+        winst8  = icache_data_i[14*32+:32];
+        winst9  = icache_data_i[15*32+:32];
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*6 ;
+        winst_pc1  = icache_pc_i + 4*7 ;
+        winst_pc2  = icache_pc_i + 4*8 ;
+        winst_pc3  = icache_pc_i + 4*9 ;
+        winst_pc4  = icache_pc_i + 4*10;
+        winst_pc5  = icache_pc_i + 4*11;
+        winst_pc6  = icache_pc_i + 4*12;
+        winst_pc7  = icache_pc_i + 4*13;
+        winst_pc8  = icache_pc_i + 4*14;
+        winst_pc9  = icache_pc_i + 4*15;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'h7) begin
+        winst0  = icache_data_i[7*32+:32] ;
+        winst1  = icache_data_i[8*32+:32] ;
+        winst2  = icache_data_i[9*32+:32] ;
+        winst3  = icache_data_i[10*32+:32];
+        winst4  = icache_data_i[11*32+:32];
+        winst5  = icache_data_i[12*32+:32];
+        winst6  = icache_data_i[13*32+:32];
+        winst7  = icache_data_i[14*32+:32];
+        winst8  = icache_data_i[15*32+:32];
+        winst9  = 'b0;
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*7 ;
+        winst_pc1  = icache_pc_i + 4*8 ;
+        winst_pc2  = icache_pc_i + 4*9 ;
+        winst_pc3  = icache_pc_i + 4*10;
+        winst_pc4  = icache_pc_i + 4*11;
+        winst_pc5  = icache_pc_i + 4*12;
+        winst_pc6  = icache_pc_i + 4*13;
+        winst_pc7  = icache_pc_i + 4*14;
+        winst_pc8  = icache_pc_i + 4*15;
+        winst_pc9  = 'b0;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'h8) begin
+        winst0  = icache_data_i[8*32+:32] ;
+        winst1  = icache_data_i[9*32+:32] ;
+        winst2  = icache_data_i[10*32+:32];
+        winst3  = icache_data_i[11*32+:32];
+        winst4  = icache_data_i[12*32+:32];
+        winst5  = icache_data_i[13*32+:32];
+        winst6  = icache_data_i[14*32+:32];
+        winst7  = icache_data_i[15*32+:32];
+        winst8  = 'b0;
+        winst9  = 'b0;
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*8 ;
+        winst_pc1  = icache_pc_i + 4*9 ;
+        winst_pc2  = icache_pc_i + 4*10;
+        winst_pc3  = icache_pc_i + 4*11;
+        winst_pc4  = icache_pc_i + 4*12;
+        winst_pc5  = icache_pc_i + 4*13;
+        winst_pc6  = icache_pc_i + 4*14;
+        winst_pc7  = icache_pc_i + 4*15;
+        winst_pc8  = 'b0;
+        winst_pc9  = 'b0;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'h9) begin
+        winst0  = icache_data_i[9*32+:32] ;
+        winst1  = icache_data_i[10*32+:32];
+        winst2  = icache_data_i[11*32+:32];
+        winst3  = icache_data_i[12*32+:32];
+        winst4  = icache_data_i[13*32+:32];
+        winst5  = icache_data_i[14*32+:32];
+        winst6  = icache_data_i[15*32+:32];
+        winst7  = 'b0;
+        winst8  = 'b0;
+        winst9  = 'b0;
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*9 ;
+        winst_pc1  = icache_pc_i + 4*10;
+        winst_pc2  = icache_pc_i + 4*11;
+        winst_pc3  = icache_pc_i + 4*12;
+        winst_pc4  = icache_pc_i + 4*13;
+        winst_pc5  = icache_pc_i + 4*14;
+        winst_pc6  = icache_pc_i + 4*15;
+        winst_pc7  = 'b0;
+        winst_pc8  = 'b0;
+        winst_pc9  = 'b0;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'ha) begin
+        winst0  = icache_data_i[10*32+:32];
+        winst1  = icache_data_i[11*32+:32];
+        winst2  = icache_data_i[12*32+:32];
+        winst3  = icache_data_i[13*32+:32];
+        winst4  = icache_data_i[14*32+:32];
+        winst5  = icache_data_i[15*32+:32];
+        winst6  = 'b0;
+        winst7  = 'b0;
+        winst8  = 'b0;
+        winst9  = 'b0;
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*10;
+        winst_pc1  = icache_pc_i + 4*11;
+        winst_pc2  = icache_pc_i + 4*12;
+        winst_pc3  = icache_pc_i + 4*13;
+        winst_pc4  = icache_pc_i + 4*14;
+        winst_pc5  = icache_pc_i + 4*15;
+        winst_pc6  = 'b0;
+        winst_pc7  = 'b0;
+        winst_pc8  = 'b0;
+        winst_pc9  = 'b0;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'hb) begin
+        winst0  = icache_data_i[11*32+:32];
+        winst1  = icache_data_i[12*32+:32];
+        winst2  = icache_data_i[13*32+:32];
+        winst3  = icache_data_i[14*32+:32];
+        winst4  = icache_data_i[15*32+:32];
+        winst5  = 'b0;
+        winst6  = 'b0;
+        winst7  = 'b0;
+        winst8  = 'b0;
+        winst9  = 'b0;
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*11;
+        winst_pc1  = icache_pc_i + 4*12;
+        winst_pc2  = icache_pc_i + 4*13;
+        winst_pc3  = icache_pc_i + 4*14;
+        winst_pc4  = icache_pc_i + 4*15;
+        winst_pc5  = 'b0;
+        winst_pc6  = 'b0;
+        winst_pc7  = 'b0;
+        winst_pc8  = 'b0;
+        winst_pc9  = 'b0;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'hc) begin
+        winst0  = icache_data_i[12*32+:32];
+        winst1  = icache_data_i[13*32+:32];
+        winst2  = icache_data_i[14*32+:32];
+        winst3  = icache_data_i[15*32+:32];
+        winst4  = 'b0;
+        winst5  = 'b0;
+        winst6  = 'b0;
+        winst7  = 'b0;
+        winst8  = 'b0;
+        winst9  = 'b0;
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*12;
+        winst_pc1  = icache_pc_i + 4*13;
+        winst_pc2  = icache_pc_i + 4*14;
+        winst_pc3  = icache_pc_i + 4*15;
+        winst_pc4  = 'b0;
+        winst_pc5  = 'b0;
+        winst_pc6  = 'b0;
+        winst_pc7  = 'b0;
+        winst_pc8  = 'b0;
+        winst_pc9  = 'b0;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'hd) begin
+        winst0  = icache_data_i[13*32+:32];
+        winst1  = icache_data_i[14*32+:32];
+        winst2  = icache_data_i[15*32+:32];
+        winst3  = 'b0;
+        winst4  = 'b0;
+        winst5  = 'b0;
+        winst6  = 'b0;
+        winst7  = 'b0;
+        winst8  = 'b0;
+        winst9  = 'b0;
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*13;
+        winst_pc1  = icache_pc_i + 4*14;
+        winst_pc2  = icache_pc_i + 4*15;
+        winst_pc3  = 'b0;
+        winst_pc4  = 'b0;
+        winst_pc5  = 'b0;
+        winst_pc6  = 'b0;
+        winst_pc7  = 'b0;
+        winst_pc8  = 'b0;
+        winst_pc9  = 'b0;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else if(icache_pc_i[5:2]==4'he) begin
+        winst0  = icache_data_i[14*32+:32];
+        winst1  = icache_data_i[15*32+:32];
+        winst2  = 'b0;
+        winst3  = 'b0;
+        winst4  = 'b0;
+        winst5  = 'b0;
+        winst6  = 'b0;
+        winst7  = 'b0;
+        winst8  = 'b0;
+        winst9  = 'b0;
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*14;
+        winst_pc1  = icache_pc_i + 4*15;
+        winst_pc2  = 'b0;
+        winst_pc3  = 'b0;
+        winst_pc4  = 'b0;
+        winst_pc5  = 'b0;
+        winst_pc6  = 'b0;
+        winst_pc7  = 'b0;
+        winst_pc8  = 'b0;
+        winst_pc9  = 'b0;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+    else begin
+        winst0  = icache_data_i[15*32+:32];
+        winst1  = 'b0;
+        winst2  = 'b0;
+        winst3  = 'b0;
+        winst4  = 'b0;
+        winst5  = 'b0;
+        winst6  = 'b0;
+        winst7  = 'b0;
+        winst8  = 'b0;
+        winst9  = 'b0;
+        winst10 = 'b0;
+        winst11 = 'b0;
+        winst12 = 'b0;
+        winst13 = 'b0;
+        winst14 = 'b0;
+        winst15 = 'b0;
+
+        winst_pc0  = icache_pc_i + 4*15;
+        winst_pc1  = 'b0;
+        winst_pc2  = 'b0;
+        winst_pc3  = 'b0;
+        winst_pc4  = 'b0;
+        winst_pc5  = 'b0;
+        winst_pc6  = 'b0;
+        winst_pc7  = 'b0;
+        winst_pc8  = 'b0;
+        winst_pc9  = 'b0;
+        winst_pc10 = 'b0;
+        winst_pc11 = 'b0;
+        winst_pc12 = 'b0;
+        winst_pc13 = 'b0;
+        winst_pc14 = 'b0;
+        winst_pc15 = 'b0;
+    end
+end
 
 assign wptr_val_add1 = wptr_val + 1;
 assign wptr_val_add2 = wptr_val + 2;
@@ -187,17 +769,17 @@ assign wptr_val_add15 = wptr_val + 15;
 generate
 for(i=0; i<DEPTH; i=i+1) begin
 
-assign write_inst_queue[i] = icache_valid_i && !instq_full_o && 
+assign write_inst_queue[i] = icache_valid_i && !instq_full_o && write_vector[i] &&
                              (i==wptr_val      ||
-                             i==wptr_val_add1 ||
-                             i==wptr_val_add2 ||
-                             i==wptr_val_add3 ||
-                             i==wptr_val_add4 ||
-                             i==wptr_val_add5 ||
-                             i==wptr_val_add6 ||
-                             i==wptr_val_add7 ||
-                             i==wptr_val_add8 ||
-                             i==wptr_val_add9 ||
+                             i==wptr_val_add1  ||
+                             i==wptr_val_add2  ||
+                             i==wptr_val_add3  ||
+                             i==wptr_val_add4  ||
+                             i==wptr_val_add5  ||
+                             i==wptr_val_add6  ||
+                             i==wptr_val_add7  ||
+                             i==wptr_val_add8  ||
+                             i==wptr_val_add9  ||
                              i==wptr_val_add10 ||
                              i==wptr_val_add11 ||
                              i==wptr_val_add12 ||
