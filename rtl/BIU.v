@@ -90,9 +90,12 @@ always @(*) begin
                     next_state = ST_SEND_ADDR;
                 end
             end else begin
-                if(req_is_read && arready_i || !req_is_read && awready_i) begin
+                if(req_is_read && arready_i) begin
                     next_state = ST_WAIT_RESP;
-                end else begin
+                end else if(!req_is_read && awready_i) begin
+                    next_state = ST_SEND_WRITE;
+                end
+                else begin
                     next_state = ST_SEND_ADDR;
                 end
             end
@@ -187,7 +190,7 @@ always @(posedge clk or negedge rst_n) begin
             end
 
             ST_SEND_WRITE: begin
-                if(req_is_cache && wvalid_o && wready_i) begin
+                if(wvalid_o && wready_i) begin
                     beat_count <= beat_count + 1'b1;
                 end
             end
