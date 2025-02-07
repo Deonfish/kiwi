@@ -252,7 +252,7 @@ tag_array0 (
 	.CEN		(~(f0_hsk || refill_way0)),
 	.WEN		(~refill_way0),
 	.D			(fetch_tag_r),
-	.A			(f0_idx),
+	.A			(refill_way0 ? fetch_idx_r : f0_idx),
 	.Q			(tag_pipe_tag[0])
 );
 
@@ -264,7 +264,7 @@ tag_array1 (
 	.CEN		(~(f0_hsk || refill_way1)),
 	.WEN		(~refill_way1),
 	.D			(fetch_tag_r),
-	.A			(f0_idx),
+	.A			(refill_way1 ? fetch_idx_r : f0_idx),
 	.Q			(tag_pipe_tag[1])
 );
 
@@ -276,7 +276,7 @@ data_array0 (
 	.CEN		(~(f0_hsk || refill_way0)),
 	.WEN		(~refill_way0),
 	.D			(refill_icache_data_i),
-	.A			(f0_idx),
+	.A			(refill_way0 ? fetch_idx_r : f0_idx),
 	.Q			(tag_pipe_data[0])
 );
 
@@ -288,7 +288,7 @@ data_array1 (
 	.CEN		(~(f0_hsk || refill_way1)),
 	.WEN		(~refill_way1),
 	.D			(refill_icache_data_i),
-	.A			(f0_idx),
+	.A			(refill_way1 ? fetch_idx_r : f0_idx),
 	.Q			(tag_pipe_data[1])
 );
 
