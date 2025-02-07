@@ -758,7 +758,6 @@ LSU u_LSU (
 	.flush_lsu_i                 (lsu_exe_flush),
 	// from operands
 	.lsu_valid_i                 (lsu_op_valid),
-	.lsu_pc_i                    (lsu_op_pc),
 	.lsu_inst_i                  (lsu_op_inst),
 	.lsu_sid_i                   (lsu_op_sid),
 	.lsu_func3_i                 (lsu_op_func3),
@@ -981,6 +980,7 @@ Scoreboard u_Scoreboard (
     .lsu_exe_flush_o           (lsu_exe_flush),
     .beu_exe_pc_o              (beu_op_pc),
     .beu_exe_inst_o            (beu_op_inst),
+    .lsu_exe_inst_o            (lsu_op_inst),
     // from write back
     .wb_inst0_vld_i            (wb_inst0_valid),
     .wb_inst0_sid_i            (wb_inst0_sid),

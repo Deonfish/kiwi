@@ -64,6 +64,7 @@ module Scoreboard(
     output [0:0]                      lsu_exe_flush_o,
     output [63:0]                     beu_exe_pc_o,
     output [31:0]                     beu_exe_inst_o,
+    output [31:0]                     lsu_exe_inst_o,
     // from write back
     input  [0:0]                      wb_inst0_vld_i,
     input  [`SCOREBOARD_SIZE_WIDTH:0] wb_inst0_sid_i,
@@ -310,6 +311,7 @@ module Scoreboard(
 
     assign beu_exe_pc_o = scb_beu_pc_r;
     assign beu_exe_inst_o = scb_beu_inst_r;
+    assign lsu_exe_inst_o = scb_lsu_inst_r;
 
     assign alu0_exe_flush_o = wb_redirect_i &  
                               (wb_redirect_sid_i[`SCOREBOARD_SIZE_WIDTH] == alu0_exe_sid_i[`SCOREBOARD_SIZE_WIDTH] ?

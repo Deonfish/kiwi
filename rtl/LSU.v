@@ -6,7 +6,6 @@ module LSU (
 	input [0:0]  flush_lsu_i,
 	// from operands
 	input [0:0]  lsu_valid_i,
-	input [63:0] lsu_pc_i,
 	input [31:0] lsu_inst_i,
 	input [`SCOREBOARD_SIZE_WIDTH:0] lsu_sid_i,
 	input [2:0]  lsu_func3_i,
@@ -42,7 +41,6 @@ reg [1:0] state;
 reg [1:0] next_state;
 
 reg lsu_valid_r;
-reg [63:0] lsu_pc_r;
 reg [31:0] lsu_inst_r;
 reg [2:0] lsu_func3_r;
 reg [63:0] lsu_rs1_value_r;
@@ -113,7 +111,6 @@ end
 always @(posedge clk or negedge rst_n) begin
 	if(!rst_n) begin
 		lsu_valid_r <= 1'b0;
-		lsu_pc_r <= 64'h0;
 		lsu_inst_r <= 32'h0;
 		lsu_func3_r <= 3'b0;
 		lsu_rs1_value_r <= 64'h0;
@@ -123,7 +120,6 @@ always @(posedge clk or negedge rst_n) begin
 	end	
 	else if(!stall_lsu_i) begin
 		lsu_valid_r <= lsu_valid_i;
-		lsu_pc_r <= lsu_pc_i;
 		lsu_inst_r <= lsu_inst_i;
 		lsu_sid_r <= lsu_sid_i;
 		lsu_func3_r <= lsu_func3_i;
