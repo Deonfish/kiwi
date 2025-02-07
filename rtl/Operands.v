@@ -41,6 +41,7 @@ module Operands(
 	input [0:0]                      inst1_decoder_auipc_i,
     input [`SCOREBOARD_SIZE_WIDTH:0] inst1_decoder_sid_i,
 	// to execute
+	output [0:0]                        inst0_operands_valid_pre_o,
 	output [0:0]                        inst0_operands_valid_o,
 	output [0:0]                        inst0_operands_rs1_valid_o,
 	output [4:0]                        inst0_operands_rs1_o,
@@ -61,6 +62,7 @@ module Operands(
 	output [0:0]                        inst0_operands_endsim_o,
 	output [0:0]                        inst0_operands_auipc_o,
     output [`SCOREBOARD_SIZE_WIDTH:0]   inst0_operands_sid_o,
+	output [0:0]                        inst1_operands_valid_pre_o,
 	output [0:0]                        inst1_operands_valid_o,
 	output [0:0]                        inst1_operands_rs1_valid_o,
 	output [4:0]                        inst1_operands_rs1_o,
@@ -182,7 +184,8 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
-assign inst0_operands_valid_o = inst0_operands_valid_r;
+assign inst0_operands_valid_pre_o = inst0_operands_valid_r;
+assign inst0_operands_valid_o = inst0_operands_valid_r & ~stall_operands_inst0_i & ~flush_operands_inst0_i;
 assign inst0_operands_rs1_valid_o = inst0_operands_rs1_valid_r;
 assign inst0_operands_rs1_o = inst0_operands_rs1_r;
 assign inst0_operands_rs2_valid_o = inst0_operands_rs2_valid_r;
@@ -199,7 +202,8 @@ assign inst0_operands_endsim_o = inst0_operands_endsim_r;
 assign inst0_operands_auipc_o = inst0_operands_auipc_r;
 assign inst0_operands_sid_o = inst0_operands_sid_r;
 
-assign inst1_operands_valid_o = inst1_operands_valid_r;
+assign inst1_operands_valid_pre_o = inst1_operands_valid_r;
+assign inst1_operands_valid_o = inst1_operands_valid_r & ~stall_operands_inst1_i & ~flush_operands_inst1_i;
 assign inst1_operands_rs1_valid_o = inst1_operands_rs1_valid_r;
 assign inst1_operands_rs1_o = inst1_operands_rs1_r;
 assign inst1_operands_rs2_valid_o = inst1_operands_rs2_valid_r;
