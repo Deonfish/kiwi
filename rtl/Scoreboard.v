@@ -62,6 +62,8 @@ module Scoreboard(
     output [0:0]                      beu_exe_flush_o,
     output [0:0]                      lsu_exe_stall_o,
     output [0:0]                      lsu_exe_flush_o,
+    output [31:0]                     alu0_exe_inst_o,
+    output [31:0]                     alu1_exe_inst_o,
     output [63:0]                     beu_exe_pc_o,
     output [31:0]                     beu_exe_inst_o,
     output [31:0]                     lsu_exe_inst_o,
@@ -309,6 +311,8 @@ module Scoreboard(
     assign beu_exe_stall_o  = 1'b0;
     assign lsu_exe_stall_o  = 1'b0;
 
+    assign alu0_exe_inst_o = scb_alu0_inst_r;
+    assign alu1_exe_inst_o = scb_alu1_inst_r;
     assign beu_exe_pc_o = scb_beu_pc_r;
     assign beu_exe_inst_o = scb_beu_inst_r;
     assign lsu_exe_inst_o = scb_lsu_inst_r;

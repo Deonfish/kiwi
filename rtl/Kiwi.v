@@ -978,6 +978,8 @@ Scoreboard u_Scoreboard (
     .beu_exe_flush_o           (beu_exe_flush),
     .lsu_exe_stall_o           (lsu_exe_stall),
     .lsu_exe_flush_o           (lsu_exe_flush),
+    .alu0_exe_inst_o           (alu0_op_inst),
+    .alu1_exe_inst_o           (alu1_op_inst),
     .beu_exe_pc_o              (beu_op_pc),
     .beu_exe_inst_o            (beu_op_inst),
     .lsu_exe_inst_o            (lsu_op_inst),
