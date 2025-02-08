@@ -9,6 +9,9 @@ parameter PERIOD  = 10;
 reg   clk                                  = 0 ;
 reg   rst_n                                = 0 ;
 
+longint inst_commited;
+longint total_cycles;
+
 longint bubble;
 longint instruction;
 longint flush_recovery;
@@ -32,6 +35,14 @@ function void cal_print_tma();
 		retire/total_slots, bad_speculation/total_slots, flush_recovery/total_slots, frontend_bound/total_slots, backend_bound/total_slots);
 	$display("-----------------------------------------------------------------------------");
 
+endfunction
+
+function void print_ipc();
+	real ipc;
+	ipc = real'(inst_commited) / real'(total_cycles);
+	$display("-----------------------------------------------------------------------------");
+	$display("ipc=%.2f", ipc);
+	$display("-----------------------------------------------------------------------------");
 endfunction
 
 initial
@@ -116,6 +127,7 @@ end
 always @(posedge clk) begin
 	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst0_decoder_valid_pre_o) begin
 		if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst0_decoder_inst_o == 32'h0000_006b) begin
+			print_ipc();
 			cal_print_tma();
 			$display("--------------- sim finished ---------------");
 			$finish;
@@ -123,10 +135,22 @@ always @(posedge clk) begin
 	end
 	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst1_decoder_valid_pre_o) begin
 		if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst1_decoder_inst_o == 32'h0000_006b) begin
+			print_ipc();
 			cal_print_tma();
 			$display("--------------- sim finished ---------------");
 			$finish;
 		end
+	end
+end
+
+// ipc
+always @(posedge clk) begin
+	total_cycles++;
+	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Scoreboard.u_instMonitor0.inst_valid_i) begin
+		inst_commited++;
+	end
+	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Scoreboard.u_instMonitor1.inst_valid_i) begin
+		inst_commited++;
 	end
 end
 
