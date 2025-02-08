@@ -27,7 +27,7 @@ module WriteBack (
 	output                                 inst1_wb_valid_o,
 	output [4:0]                           inst1_wb_rd_o,
 	output [63:0]                          inst1_wb_value_o,
-	output [31:0]                          inst1_wb_inst_o,
+	output [31:0]                          inst1_wb_sid_o,
 	output                                 wb_redirect_o,
 	output [63:0]                          wb_redirect_pc_o,
 	output [`SCOREBOARD_SIZE_WIDTH:0]      wb_redirect_sid_o
