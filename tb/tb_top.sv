@@ -112,14 +112,14 @@ end
 
 // sim finish control
 always @(posedge clk) begin
-	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst0_decoder_valid_o) begin
+	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst0_decoder_valid_pre_o) begin
 		if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst0_decoder_inst_o == 32'h0000_006b) begin
 			cal_print_tma();
 			$display("--------------- sim finished ---------------");
 			$finish;
 		end
 	end
-	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst1_decoder_valid_o) begin
+	if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst1_decoder_valid_pre_o) begin
 		if(tb_TinyCore.u_kiwi_subsys.u_CPU.u_Decoder.inst1_decoder_inst_o == 32'h0000_006b) begin
 			cal_print_tma();
 			$display("--------------- sim finished ---------------");

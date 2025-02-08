@@ -181,8 +181,8 @@ assign inst1_decoder_func_code_o = inst1_decoder_func_code;
 assign inst1_decoder_func3_o 	 = inst1_decoder_func3;
 assign inst1_decoder_func2_o 	 = inst1_decoder_func2;
 
-assign inst0_endsim_o = inst0_decoder_inst_r == 32'h0000_006b;
-assign inst1_endsim_o = inst1_decoder_inst_r == 32'h0000_006b;
+assign inst0_decoder_endsim_o = inst0_decoder_inst_r == 32'h0000_006b;
+assign inst1_decoder_endsim_o = inst1_decoder_inst_r == 32'h0000_006b;
 
 FuncDecodeEntry u_FuncDecodeEntry_0 ( 
     .inst_i          (inst0_decoder_inst_r),
