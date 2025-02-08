@@ -616,25 +616,25 @@ module Scoreboard(
     wire [63:0] wb_inst1_pc;
     wire [31:0] wb_inst1_inst;
 
-    assign wb_inst0_pc = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_pc_r :
-                        wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu1_pc_r :
-                        wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_pc_r :
-                        wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_pc_r : 0;
+    assign wb_inst0_pc = {64{scb_alu0_busy_r && wb_inst0_sid_i == scb_alu0_sid_r}} & scb_alu0_pc_r |
+                         {64{scb_alu1_busy_r && wb_inst0_sid_i == scb_alu1_sid_r}} & scb_alu1_pc_r |
+                         {64{scb_beu_busy_r  && wb_inst0_sid_i == scb_beu_sid_r}}  & scb_beu_pc_r  |
+                         {64{scb_lsu_busy_r  && wb_inst0_sid_i == scb_lsu_sid_r}}  & scb_lsu_pc_r;
 
-    assign wb_inst0_inst = wb_inst0_sid_i == scb_alu0_sid_r ? scb_alu0_inst_r :
-                        wb_inst0_sid_i == scb_alu1_sid_r ? scb_alu1_inst_r :
-                        wb_inst0_sid_i == scb_beu_sid_r  ? scb_beu_inst_r :
-                        wb_inst0_sid_i == scb_lsu_sid_r  ? scb_lsu_inst_r : 0;
+    assign wb_inst0_inst = {64{scb_alu0_busy_r && wb_inst0_sid_i == scb_alu0_sid_r}} & scb_alu0_inst_r |
+                           {64{scb_alu1_busy_r && wb_inst0_sid_i == scb_alu1_sid_r}} & scb_alu1_inst_r |
+                           {64{scb_beu_busy_r  && wb_inst0_sid_i == scb_beu_sid_r}}  & scb_beu_inst_r |
+                           {64{scb_lsu_busy_r  && wb_inst0_sid_i == scb_lsu_sid_r}}  & scb_lsu_inst_r;
 
-    assign wb_inst1_pc = wb_inst1_sid_i == scb_alu0_sid_r ? scb_alu0_pc_r :
-                        wb_inst1_sid_i == scb_alu1_sid_r ? scb_alu1_pc_r :
-                        wb_inst1_sid_i == scb_beu_sid_r  ? scb_beu_pc_r :
-                        wb_inst1_sid_i == scb_lsu_sid_r  ? scb_lsu_pc_r : 0;
+    assign wb_inst1_pc = {64{scb_alu0_busy_r && wb_inst1_sid_i == scb_alu0_sid_r}} & scb_alu0_pc_r |
+                         {64{scb_alu1_busy_r && wb_inst1_sid_i == scb_alu1_sid_r}} & scb_alu1_pc_r |
+                         {64{scb_beu_busy_r  && wb_inst1_sid_i == scb_beu_sid_r}}  & scb_beu_pc_r  |
+                         {64{scb_lsu_busy_r  && wb_inst1_sid_i == scb_lsu_sid_r}}  & scb_lsu_pc_r;
 
-    assign wb_inst1_inst = wb_inst1_sid_i == scb_alu0_sid_r ? scb_alu0_inst_r :
-                        wb_inst1_sid_i == scb_alu1_sid_r ? scb_alu1_inst_r :
-                        wb_inst1_sid_i == scb_beu_sid_r  ? scb_beu_inst_r :
-                        wb_inst1_sid_i == scb_lsu_sid_r  ? scb_lsu_inst_r : 0;
+    assign wb_inst1_inst = {64{scb_alu0_busy_r && wb_inst1_sid_i == scb_alu0_sid_r}} & scb_alu0_inst_r |
+                           {64{scb_alu1_busy_r && wb_inst1_sid_i == scb_alu1_sid_r}} & scb_alu1_inst_r |
+                           {64{scb_beu_busy_r  && wb_inst1_sid_i == scb_beu_sid_r}}  & scb_beu_inst_r |
+                           {64{scb_lsu_busy_r  && wb_inst1_sid_i == scb_lsu_sid_r}}  & scb_lsu_inst_r;
 
     // ----------------- instMonitor -----------------
 
