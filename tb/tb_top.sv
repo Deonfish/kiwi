@@ -26,9 +26,11 @@ function void cal_print_tma();
 	frontend_bound = frontend_bound - flush_recovery;
 	bad_speculation = instruction - retire;
 
+	$display("-----------------------------------------------------------------------------")
 	$display("| Rtire | Bad Speculation | Flush Recovery | Frontend Bound | Backend Bound |");
-	$display("| %.1f  |       %.1f      |      %.1f      |      %.1f      |     %.1f      |", 
+	$display("| %.1f   |       %.1f       |      %.1f       |      %.1f       |     %.1f       |", 
 		retire/total_slots, bad_speculation/total_slots, flush_recovery/total_slots, frontend_bound/total_slots, backend_bound/total_slots);
+	$display("-----------------------------------------------------------------------------")
 
 endfunction
 
