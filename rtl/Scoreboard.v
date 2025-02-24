@@ -200,10 +200,10 @@ module Scoreboard(
         if (!rst_n) begin
             cur_sid_r <= 0;
         end
-        else if(((decoder_inst0_vld_i && stall_decoder_inst0_o) && !(decoder_inst1_vld_i && stall_decoder_inst1_o)) ||
-                (!(decoder_inst0_vld_i && stall_decoder_inst0_o) && (decoder_inst1_vld_i && stall_decoder_inst1_o)))
+        else if(((decoder_inst0_vld_i && !stall_decoder_inst0_o) && !(decoder_inst1_vld_i && !stall_decoder_inst1_o)) ||
+                (!(decoder_inst0_vld_i && !stall_decoder_inst0_o) && (decoder_inst1_vld_i && !stall_decoder_inst1_o)))
             cur_sid_r <= cur_sid_r + 1;
-        else if((decoder_inst0_vld_i && stall_decoder_inst0_o) && (decoder_inst1_vld_i && stall_decoder_inst1_o)) begin
+        else if((decoder_inst0_vld_i && !stall_decoder_inst0_o) && (decoder_inst1_vld_i && !stall_decoder_inst1_o)) begin
             cur_sid_r <= cur_sid_r + 2;
         end
     end
