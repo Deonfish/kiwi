@@ -249,7 +249,7 @@ wire [4:0] 	alu1_exe_rd;
 wire [63:0] alu1_exe_rd_value;
 wire [31:0] alu1_exe_inst;
 wire [0:0] 	beu_exe_valid;
-wire [4:0] 	beu_exe_rd;
+// wire [4:0] 	beu_exe_rd;
 wire [63:0] beu_exe_rd_value;
 wire [31:0] beu_exe_inst;
 wire [0:0] 	beu_exe_redirect;
@@ -845,7 +845,7 @@ Exe_wb_sequencer u_Exe_wb_sequencer (
 	.beu_exe_valid_i           (beu_exe_valid),
 	.beu_exe_stall_i           (beu_exe_stall),
 	.beu_exe_rd_value_i        (beu_exe_rd_value),
-	.beu_exe_rd_i              (beu_exe_rd),
+	.beu_exe_rd_i              ('b0),
 	.beu_exe_redirect_i        (beu_exe_redirect),
 	.beu_exe_redirect_pc_i     (beu_exe_redirect_pc),
 	.beu_exe_sid_i             (beu_exe_sid),
