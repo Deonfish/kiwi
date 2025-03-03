@@ -12,7 +12,8 @@ endclass
 class axi_lite_slave_driver;
 
 	virtual axi_lite_if vif;
-
+    
+    // 8MB space
     logic [63:0] mem[1024*1024];
 
     axi_lite_mem_request aw_q[$];
@@ -126,7 +127,7 @@ class axi_lite_slave_driver;
                 vif.axi_lite_slave_cb.bvalid <= 1'b1;
                 vif.axi_lite_slave_cb.bresp <= 2'b00; // no bus error
 
-                mem[b_req.addr] = b_req.data;
+                mem[b_req.addr>>3] = b_req.data;
             end
         end
     endtask

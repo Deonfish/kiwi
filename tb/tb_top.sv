@@ -90,18 +90,18 @@ bit[31:0] data_mem[1024*1024];
 
 // init code and data memory
 initial begin
-	$readmemh("../tests/programs/hello.text.hex", code_mem);
-	$readmemh("../tests/programs/hello.data.hex", data_mem);
+	$readmemh("../tests/programs/coremark.text.hex", code_mem);
+	$readmemh("../tests/programs/coremark.data.hex", data_mem);
 	$display("code initing to mem...");
-	for(int i=0; i<1024*1024/2; i++) begin
-		ibiu_axi_driver.mem[i][31:0] = code_mem[i*2];
-		dbiu_axi_driver.mem[i][31:0] = data_mem[i*2];
+	// FLASH (rx) : ORIGIN = 0x70000000, LENGTH = 0x100000    /* 1MB for .text and .rodata */
+	for(int i=0; i<1024*1024/8; i++) begin
+		ibiu_axi_driver.mem[i][31:0]  = code_mem[i*2];
 		ibiu_axi_driver.mem[i][63:32] = code_mem[i*2+1];
+	end
+	// RAM (rw)  : ORIGIN = 0x70100000, LENGTH = 0x100000 /* 1MB for .data, .bss, heap, stack */
+	for(int i=1024*1024/8; i<1024*1024/8*2; i++) begin
 		dbiu_axi_driver.mem[i][63:32] = data_mem[i*2+1];
-		//if(i<2000) begin
-		//	$display("code_mem[%0d] = %0h", i, u_TinyCore.itcm.mem[i]);
-		//	$display("data_mem[%0d] = %0h", i, u_TinyCore.dtcm.mem[i]);
-		//end
+		dbiu_axi_driver.mem[i][31:0]  = data_mem[i*2];
 	end
 	$display("code init to mem done!");
 end

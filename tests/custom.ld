@@ -5,8 +5,8 @@ ENTRY(_start)
 
 MEMORY
 {
-    FLASH (rx) : ORIGIN = 0x70000000, LENGTH = 0x1000000    /* 256KB for .text and .rodata */
-    RAM (rw)  : ORIGIN = 0x71000000, LENGTH = 0x1000000 /* 256KB for .data, .bss, heap, stack */
+    FLASH (rx) : ORIGIN = 0x70000000, LENGTH = 0x100000    /* 1MB for .text and .rodata */
+    RAM (rw)  : ORIGIN = 0x70100000, LENGTH = 0x100000 /* 1MB for .data, .bss, heap, stack */
 }
 
 SECTIONS
@@ -62,4 +62,4 @@ SECTIONS
 }
 
 /* Define symbols for stack and heap */
-PROVIDE(__global_pointer$ = 0x71000000 + 0x800);
+PROVIDE(__global_pointer$ = 0x70100000 + 0x800);
