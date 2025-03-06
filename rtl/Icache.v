@@ -193,7 +193,7 @@ assign stall_f0_o = (state == TAG && ~hit) || state == MISS;
 
 // icache miss output gen
 assign icache_miss_valid_o = state == TAG && ~hit && ~hit_refill;
-assign icache_miss_addr_o = {fetch_tag_r, fetch_idx_r, fetch_offset_r};
+assign icache_miss_addr_o = {fetch_tag_r, fetch_idx_r, {OFFSET_WIDTH{1'b0}}};
 
 // refill logic
 always @(posedge clk or negedge rst_n) begin
