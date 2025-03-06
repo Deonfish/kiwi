@@ -181,7 +181,7 @@ module Scoreboard(
 
     assign cur_sid_add1 = cur_sid_r + 1;
     assign inst0_sid = cur_sid_r;
-    assign inst1_sid = cur_sid_add1;
+    assign inst1_sid = (decoder_inst0_vld_i && !stall_decoder_inst0_o) ? cur_sid_add1 : cur_sid_r;
 
     assign inst0_wr_scb = inst0_wr_alu0 || inst0_wr_alu1 || inst0_wr_beu || inst0_wr_lsu;
     assign inst1_wr_scb = inst1_wr_alu0 || inst1_wr_alu1 || inst1_wr_beu || inst1_wr_lsu;
